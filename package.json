@@ -1,0 +1,45 @@
+{
+  "name": "pending",
+  "private": true,
+  "description": "...",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview",
+    "package": "bash ./create-minima-app/package.sh",
+    "postbuild": "node ./create-minima-app/postbuild.js",
+    "zip": "npm run build && npm run postbuild && npm run package",
+    "src:zip": "bash create-minima-app/zip.sh"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.195",
+    "axios": "^1.4.0",
+    "embla-carousel-react": "^8.0.0-rc05",
+    "lodash": "^4.17.21",
+    "prettier": "^2.8.8",
+    "react": "^18.2.0",
+    "react-clipboard.js": "^2.0.16",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.11.1",
+    "react-spring": "^9.7.1",
+    "vite-plugin-html": "^3.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
+    "@typescript-eslint/eslint-plugin": "^5.57.1",
+    "@typescript-eslint/parser": "^5.57.1",
+    "@vitejs/plugin-react-swc": "^3.0.0",
+    "autoprefixer": "^10.4.14",
+    "eslint": "^8.38.0",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.3.4",
+    "postcss": "^8.4.23",
+    "tailwindcss": "^3.3.2",
+    "typescript": "^5.0.2",
+    "vite": "^4.3.2"
+  }
+}
