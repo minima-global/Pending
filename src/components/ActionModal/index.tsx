@@ -82,6 +82,20 @@ export function ActionModal() {
                         </button>
                       </div>
                     )}
+                    {displayActionModal && displayActionModal.cleared && (
+                      <div>
+                        <h1 className="font-bold text-center text-xl mb-6 mx-10">
+                          Denied all pending actions
+                        </h1>
+                        <button
+                          onClick={onClose}
+                          type="submit"
+                          className="w-full px-4 py-3.5 rounded font-bold text-white bg-black"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </animated.div>
               </div>

@@ -8,6 +8,7 @@ type AppContext = {
     minidapp?: MDSPendingResponse['pending'][0]['minidapp'];
     accept?: boolean;
     deny?: boolean;
+    cleared?: boolean;
     display: boolean;
     loading: boolean;
     message?: string;
@@ -26,6 +27,7 @@ type AppContext = {
   >;
   accept: (uid: string, minidapp: MDSPendingResponse['pending'][0]['minidapp']) => void;
   decline: (uid: string, minidapp: MDSPendingResponse['pending'][0]['minidapp']) => void;
+  clearAll: () => void;
   pendingData: MDSPendingResponse['pending'] | null;
 };
 
@@ -35,6 +37,7 @@ export const appContext = createContext<AppContext>({
   pendingData: null,
   accept: () => null,
   decline: () => null,
+  clearAll: () => null,
 });
 
 const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -102,9 +105,18 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     });
   };
 
+  const clearAll = async () => {
+    setDisplayActionModal({ display: true, loading: true });
+    const pendingActionsResponse = await getPendingActions();
+    await Promise.all(pendingActionsResponse.pending.map((i) => declineAction(i.uid)));
+    refresh();
+    setDisplayActionModal({ display: true, loading: false, cleared: true });
+  };
+
   const value = {
     accept,
     decline,
+    clearAll,
     pendingData,
     displayActionModal,
     setDisplayActionModal,
