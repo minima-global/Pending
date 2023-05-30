@@ -34,9 +34,9 @@ function Actions() {
             <div className="bg-grey rounded-lg w-full mb-4">
               <div className="flex w-full pt-3 px-3">
                 <div className="flex gap-4">
-                  <img
-                    src={`${(window as any).MDS.filehost}/${pending.minidapp.uid}/${pending.minidapp.conf.icon}`}
-                    className="w-10 h-10 rounded-lg"
+                  <div
+                    className="w-10 h-10 bg-cover rounded-lg"
+                    style={{ backgroundImage: `url(${(window as any).MDS.filehost}/${pending.minidapp.uid}/${pending.minidapp.conf.icon}), url('./app.png')` }}
                   />
                   <div className="text-lg font-bold text-core-grey-80 flex items-center">{pending.minidapp.conf.name}</div>
                 </div>
