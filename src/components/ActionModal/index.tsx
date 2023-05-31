@@ -29,7 +29,7 @@ export function ActionModal() {
       {transition((style, display) => (
         <>
           {display && (
-            <div className="mx-auto absolute top-0 left-0 z-20 w-full h-full z-10 flex items-center justify-center text-black">
+            <div className="mx-auto fixed top-0 left-0 z-20 w-full h-full z-10 flex items-center justify-center text-black">
               <div className="relative z-10 px-5 w-full">
                 <animated.div style={style} className="bg-white rounded-lg p-6 mx-auto max-w-lg">
                   <div className="w-full">
@@ -66,10 +66,7 @@ export function ActionModal() {
                           data-clipboard-text={displayActionModal.response}
                           onClick={() => setCopied(true)}
                         >
-                          <div
-                            type="button"
-                            className="w-full px-4 py-3.5 rounded font-bold bg-white border border-black text-black mb-2 flex items-center justify-center"
-                          >
+                          <div className="w-full px-4 py-3.5 rounded font-bold bg-white border border-black text-black mb-2 flex items-center justify-center">
                             {!copied && 'Copy Response'}
                             {copied && (
                               <div className="flex gap-2 items-center">

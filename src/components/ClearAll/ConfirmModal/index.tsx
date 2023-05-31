@@ -17,8 +17,8 @@ export function ConfirmModal({ display, dismiss }) {
       {transition((style, display) => (
         <>
           {display && (
-            <div className="mx-auto absolute top-0 left-0 z-20 w-full h-full z-10 flex items-center justify-center text-black">
-              <div className="relative z-10 px-5">
+            <div className="mx-auto fixed top-0 left-0 z-30 w-full h-full z-10 flex items-center justify-center text-black">
+              <div className="relative z-20 px-5">
                 <animated.div
                   style={style}
                   className="bg-white rounded-lg p-6 mx-auto max-w-lg"
