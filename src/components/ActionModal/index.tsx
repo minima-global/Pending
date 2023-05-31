@@ -31,9 +31,13 @@ export function ActionModal() {
           {display && (
             <div className="mx-auto absolute top-0 left-0 z-20 w-full h-full z-10 flex items-center justify-center text-black">
               <div className="relative z-10 px-5 w-full">
-                <animated.div style={style} className="bg-white rounded-lg p-6 mx-auto">
+                <animated.div style={style} className="bg-white rounded-lg p-6 mx-auto max-w-lg">
                   <div className="w-full">
-                    {displayActionModal && displayActionModal.loading && <div className="spinner w-4 h-4" />}
+                    {displayActionModal && displayActionModal.loading && (
+                      <div className="w-full flex items-center justify-center mb-2">
+                        <div className="spinner w-4 h-4 mx-auto" />
+                      </div>
+                    )}
                     {displayActionModal && displayActionModal.accept && (
                       <div>
                         {displayActionModal.minidapp && (
@@ -62,7 +66,7 @@ export function ActionModal() {
                           data-clipboard-text={displayActionModal.response}
                           onClick={() => setCopied(true)}
                         >
-                          <button
+                          <div
                             type="button"
                             className="w-full px-4 py-3.5 rounded font-bold bg-white border border-black text-black mb-2 flex items-center justify-center"
                           >
@@ -84,7 +88,7 @@ export function ActionModal() {
                                 </svg>
                               </div>
                             )}
-                          </button>
+                          </div>
                         </Clipboard>
                         <button
                           onClick={onClose}

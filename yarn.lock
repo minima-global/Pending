@@ -1520,6 +1520,13 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
+maskdata@^1.2.2:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/maskdata/-/maskdata-1.2.2.tgz#ce37f956207af8fc787a37d63429ef24a8184ae0"
+  integrity sha512-J6SqypQuS0XdgNQYFxnNLQ+rl7v4gq+DwnJ7NpZkQ0Ommzwde6WMFuS9d/4TSBN9bo9mqSeEcF3Q86CWAlUYvw==
+  dependencies:
+    lodash "^4.17.21"
+
 merge2@^1.3.0, merge2@^1.4.1:
   version "1.4.1"
   resolved "https://registry.npmjs.org/merge2/-/merge2-1.4.1.tgz"

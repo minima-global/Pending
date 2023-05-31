@@ -2,6 +2,8 @@ import * as React from 'react';
 import { createContext, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
 import { acceptAction, declineAction, getPendingActions } from './lib';
 import { MDSPendingResponse } from './types';
+import MaskData from 'maskdata';
+import { maskConfig } from './config';
 
 type AppContext = {
   displayActionModal: {
@@ -82,8 +84,8 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
           accept: true,
           display: true,
           loading: false,
-          message: JSON.stringify(response.params, null, 2),
-          response: JSON.stringify(response.response, null, 2),
+          message: JSON.stringify(MaskData.maskJSON2(response.params, maskConfig), null, 2),
+          response: JSON.stringify(MaskData.maskJSON2(response.response, maskConfig), null, 2),
         });
       });
     });

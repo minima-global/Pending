@@ -19,6 +19,7 @@
     "axios": "^1.4.0",
     "embla-carousel-react": "^8.0.0-rc05",
     "lodash": "^4.17.21",
+    "maskdata": "^1.2.2",
     "prettier": "^2.8.8",
     "react": "^18.2.0",
     "react-clipboard.js": "^2.0.16",
