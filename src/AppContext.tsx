@@ -3,7 +3,7 @@ import { createContext, Dispatch, SetStateAction, useEffect, useRef, useState } 
 import { acceptAction, declineAction, getPendingActions } from './lib';
 import { MDSPendingResponse } from './types';
 import MaskData from 'maskdata';
-import { maskConfig } from './config';
+import { maskMdsCommand, maskParamCommand, maskVaultCommand } from './config';
 
 type AppContext = {
   displayActionModal: {
@@ -79,13 +79,21 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
     acceptAction(uid).then((response) => {
       refresh().then(() => {
+        let maskCommand = {};
+
+        if (response.command === 'mds') {
+          maskCommand = maskMdsCommand;
+        } else if (response.command === 'vault') {
+          maskCommand = maskVaultCommand;
+        }
+
         setDisplayActionModal({
           minidapp,
           accept: true,
           display: true,
           loading: false,
-          message: JSON.stringify(MaskData.maskJSON2(response.params, maskConfig), null, 2),
-          response: JSON.stringify(MaskData.maskJSON2(response.response, maskConfig), null, 2),
+          message: JSON.stringify(MaskData.maskJSON2(response.params, maskParamCommand), null, 2),
+          response: JSON.stringify(MaskData.maskJSON2(response.response, maskCommand), null, 2),
         });
       });
     });
