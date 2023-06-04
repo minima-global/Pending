@@ -32,7 +32,7 @@ export function ActionModal() {
         )}
         {displayActionModal && displayActionModal.accept && (
           <div>
-            <h1 className="font-bold text-center text-xl mb-6">Pending action has been approved</h1>
+            <h1 className="font-bold text-center text-xl mb-8">Pending action has been approved</h1>
             <div className="text-left p-1 lg:p-4 text-xs lg:text-sm rounded px-4 py-3 bg-core-black-contrast mb-6 break-word">
               <pre className="text-left max-h-[14rem] overflow-y-scroll break-word pr-3 custom-scrollbar">
                 {displayActionModal.message}
@@ -45,7 +45,7 @@ export function ActionModal() {
               data-clipboard-text={displayActionModal.response}
               onClick={() => setCopied(true)}
             >
-              <div className="w-full px-4 py-3.5 rounded font-bold bg-white border border-black text-black mb-2 flex items-center justify-center">
+              <div className="w-full px-4 py-3.5 rounded font-bold bg-white border border-black text-black mb-1 flex items-center justify-center">
                 {!copied && 'Copy Response'}
                 {copied && (
                   <div className="flex gap-2 items-center">
@@ -64,7 +64,7 @@ export function ActionModal() {
         )}
         {displayActionModal && displayActionModal.deny && (
           <div>
-            <h1 className="font-bold text-center text-xl mb-6">Pending action has been denied</h1>
+            <h1 className="font-bold text-center text-xl mb-8">Pending action has been denied</h1>
             <pre className="text-left p-1 lg:p-4 text-xs lg:text-sm rounded px-4 py-3 bg-core-black-contrast mb-2 break-word">
               {displayActionModal.message}
             </pre>

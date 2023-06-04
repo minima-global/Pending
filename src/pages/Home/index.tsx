@@ -37,6 +37,18 @@ function Home() {
     });
   }, [currentIndex]);
 
+  /**
+   * If user's current pending action index is higher than the total
+   * pending data actions, than move the user back to the previous command
+   * as it's most likely that they have approved / declined the latest action
+   */
+  useEffect(() => {
+    if (pendingData && currentIndex + 1 > pendingData.length) {
+      const latestItem = pendingData.length - 1;
+      setCurrentIndex(latestItem === -1 ? 0 : latestItem);
+    }
+  }, [currentIndex, pendingData]);
+
   return (
     <div className="app select-none">
       <div className="flex flex-col h-full">
