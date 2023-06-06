@@ -47,7 +47,7 @@ function PendingItem({ data, callback }: any) {
     refresh();
     startInterval();
     setView(DEFAULT_VIEW);
-    
+
     if (callback) {
       callback();
     }
