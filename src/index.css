@@ -96,10 +96,10 @@ pre {
 
 /** Custom scrollbar **/
 .custom-scrollbar::-webkit-scrollbar {
-    width: 0.5em;
+    width: 0.4em;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-    background-color: rgba(255,255,255,0.5);
+    background-color: var(--core-black-100);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background-color: white;

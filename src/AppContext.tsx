@@ -27,23 +27,30 @@ type AppContext = {
       response?: string;
     } | null>
   >;
-  accept: (uid: string, minidapp: MDSPendingResponse['pending'][0]['minidapp']) => void;
-  decline: (uid: string, minidapp: MDSPendingResponse['pending'][0]['minidapp']) => void;
+  refresh: () => Promise<any>;
+  accept: (uid: string) => Promise<any>;
+  decline: (uid: string) => Promise<any>;
   clearAll: () => void;
   pendingData: MDSPendingResponse['pending'] | null;
+  startInterval: () => void;
+  stopInterval: () => void;
 };
 
 export const appContext = createContext<AppContext>({
   displayActionModal: null,
   setDisplayActionModal: () => null,
   pendingData: null,
-  accept: () => null,
-  decline: () => null,
+  accept: async () => null,
+  decline: async () => null,
+  refresh: async () => null,
   clearAll: () => null,
+  startInterval: () => null,
+  stopInterval: () => null,
 });
 
 const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const loaded = useRef(false);
+  const [runInterval, setRunInterval] = useState(true);
   const [pendingData, setPendingData] = useState<AppContext['pendingData']>(null);
   const [displayActionModal, setDisplayActionModal] = useState<AppContext['displayActionModal']>(null);
 
@@ -57,16 +64,24 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
           getPendingActions().then((pendingActionsResponse) => {
             setPendingData(pendingActionsResponse.pending);
           });
-
-          setInterval(() => {
-            getPendingActions().then((pendingActionsResponse) => {
-              setPendingData(pendingActionsResponse.pending);
-            });
-          }, 5000);
         }
       });
     }
   }, [loaded]);
+
+  useEffect(() => {
+    if (loaded && runInterval) {
+      const interval = setInterval(() => {
+        getPendingActions().then((pendingActionsResponse) => {
+          setPendingData(pendingActionsResponse.pending);
+        });
+      }, 5000);
+
+      return () => {
+        clearInterval(interval);
+      };
+    }
+  }, [loaded, runInterval]);
 
   const refresh = () => {
     return getPendingActions().then((pendingActionsResponse) => {
@@ -74,44 +89,27 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     });
   };
 
-  const accept = async (uid: string, minidapp: MDSPendingResponse['pending'][0]['minidapp']) => {
-    setDisplayActionModal({ display: true, loading: true });
+  const accept = async (uid: string) => {
+    return acceptAction(uid).then((response) => {
+      let maskCommand = {};
 
-    acceptAction(uid).then((response) => {
-      refresh().then(() => {
-        let maskCommand = {};
+      if (response.command === 'mds') {
+        maskCommand = maskMdsCommand;
+      } else if (response.command === 'vault') {
+        maskCommand = maskVaultCommand;
+      }
 
-        if (response.command === 'mds') {
-          maskCommand = maskMdsCommand;
-        } else if (response.command === 'vault') {
-          maskCommand = maskVaultCommand;
-        }
-
-        setDisplayActionModal({
-          minidapp,
-          accept: true,
-          display: true,
-          loading: false,
-          message: JSON.stringify(MaskData.maskJSON2(response.params, maskParamCommand), null, 2),
-          response: JSON.stringify(MaskData.maskJSON2(response.response, maskCommand), null, 2),
-        });
-      });
+      return {
+        command: JSON.stringify(MaskData.maskJSON2(response.response, maskCommand), null, 2),
+      };
     });
   };
 
-  const decline = (uid: string, minidapp: MDSPendingResponse['pending'][0]['minidapp']) => {
-    setDisplayActionModal({ display: true, loading: true });
-
-    declineAction(uid).then((response) => {
-      refresh().then(() => {
-        setDisplayActionModal({
-          minidapp,
-          deny: true,
-          display: true,
-          loading: false,
-          message: JSON.stringify(response.params, null, 2),
-        });
-      });
+  const decline = (uid: string) => {
+    return declineAction(uid).then((response) => {
+      return {
+        params: response.params,
+      };
     });
   };
 
@@ -123,10 +121,22 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     setDisplayActionModal({ display: true, loading: false, cleared: true });
   };
 
+  /**
+   * Use these two methods to stop/start the interval that retrives pending
+   * actions, this is useful for UI that should stay on the screen until it does something
+   * or else a pending action can disappear once you approve / deny an item and the UI
+   * just disappears
+   */
+  const startInterval = () => setRunInterval(true);
+  const stopInterval = () => setRunInterval(false);
+
   const value = {
     accept,
     decline,
     clearAll,
+    refresh,
+    stopInterval,
+    startInterval,
     pendingData,
     displayActionModal,
     setDisplayActionModal,

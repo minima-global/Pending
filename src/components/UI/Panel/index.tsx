@@ -34,7 +34,7 @@ const Panel: React.FC<React.PropsWithChildren<PanelProps>> = ({
 
   return (
     <div className="flex flex-col bg-core-black-contrast rounded relative overflow-hidden h-full">
-      <div className="relative text-white p-4">
+      <div className="relative text-white text-left p-4">
         {title}
         {copy && (
           <div className="absolute top-0 right-0 h-full flex items-center mr-4 text-core-grey">
@@ -77,7 +77,7 @@ const Panel: React.FC<React.PropsWithChildren<PanelProps>> = ({
         {children && <>{children}</>}
         {!children && (
           <div className="grid grid-cols-12">
-            <div className="col-span-6">
+            <div className={`${refresh ? 'col-span-12' : 'col-span-9'}`}>
               <div
                 className={`lg:text-base break-words ${
                   link ? 'cursor-pointer text-white underline' : 'text-core-grey-80'
@@ -86,18 +86,20 @@ const Panel: React.FC<React.PropsWithChildren<PanelProps>> = ({
                 {value}
               </div>
             </div>
-            <div className="col-span-6 flex items-center justify-end">
-              {refresh && (
-                <div className="cursor-pointer transition-all active:rotate-180">
-                  <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M11.05 15.75C8.8872 15.75 7.0465 14.9974 5.52792 13.4923C4.00933 11.9871 3.25004 10.1564 3.25004 7.99998V7.21915L1.40002 9.06918L0.346191 8.01535L4.00002 4.36155L7.65384 8.01535L6.60002 9.06918L4.74999 7.21915V7.99998C4.74999 9.73716 5.36153 11.2131 6.58462 12.4279C7.8077 13.6426 9.29617 14.25 11.05 14.25C11.4641 14.25 11.8779 14.2048 12.2914 14.1144C12.7048 14.024 13.1083 13.8885 13.5019 13.7077L14.6269 14.8327C14.0641 15.1352 13.483 15.3637 12.8837 15.5182C12.2843 15.6727 11.6731 15.75 11.05 15.75ZM18 11.6384L14.3462 7.9846L15.4 6.93078L17.25 8.7808V7.99998C17.25 6.26279 16.6385 4.78682 15.4154 3.57207C14.1923 2.35732 12.7039 1.74995 10.95 1.74995C10.5359 1.74995 10.1221 1.79514 9.70867 1.88553C9.29522 1.97591 8.89169 2.11148 8.49809 2.29225L7.37312 1.1673C7.93593 0.864734 8.51702 0.636209 9.11637 0.481726C9.71573 0.327243 10.327 0.25 10.95 0.25C13.1128 0.25 14.9535 1.00256 16.4721 2.50768C17.9907 4.01281 18.75 5.84358 18.75 7.99998V8.7808L20.6 6.93078L21.6538 7.9846L18 11.6384Z"
-                      fill="#F4F4F5"
-                    />
-                  </svg>
-                </div>
-              )}
-            </div>
+            {refresh && (
+              <div className="col-span-3 flex items-center justify-end">
+                {refresh && (
+                  <div className="cursor-pointer transition-all active:rotate-180">
+                    <svg width="22" height="16" viewBox="0 0 22 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path
+                        d="M11.05 15.75C8.8872 15.75 7.0465 14.9974 5.52792 13.4923C4.00933 11.9871 3.25004 10.1564 3.25004 7.99998V7.21915L1.40002 9.06918L0.346191 8.01535L4.00002 4.36155L7.65384 8.01535L6.60002 9.06918L4.74999 7.21915V7.99998C4.74999 9.73716 5.36153 11.2131 6.58462 12.4279C7.8077 13.6426 9.29617 14.25 11.05 14.25C11.4641 14.25 11.8779 14.2048 12.2914 14.1144C12.7048 14.024 13.1083 13.8885 13.5019 13.7077L14.6269 14.8327C14.0641 15.1352 13.483 15.3637 12.8837 15.5182C12.2843 15.6727 11.6731 15.75 11.05 15.75ZM18 11.6384L14.3462 7.9846L15.4 6.93078L17.25 8.7808V7.99998C17.25 6.26279 16.6385 4.78682 15.4154 3.57207C14.1923 2.35732 12.7039 1.74995 10.95 1.74995C10.5359 1.74995 10.1221 1.79514 9.70867 1.88553C9.29522 1.97591 8.89169 2.11148 8.49809 2.29225L7.37312 1.1673C7.93593 0.864734 8.51702 0.636209 9.11637 0.481726C9.71573 0.327243 10.327 0.25 10.95 0.25C13.1128 0.25 14.9535 1.00256 16.4721 2.50768C17.9907 4.01281 18.75 5.84358 18.75 7.99998V8.7808L20.6 6.93078L21.6538 7.9846L18 11.6384Z"
+                        fill="#F4F4F5"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
