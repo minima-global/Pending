@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
 import { appContext } from '../../AppContext';
-import Panel from '../../components/UI/Panel';
 import Button from '../../components/UI/Button';
 import TitleBar from '../../components/UI/TitleBar';
 import { animated } from '@react-spring/web';
@@ -8,10 +7,10 @@ import { useSpring } from 'react-spring';
 import PendingItem from '../../components/PendingItem';
 
 function Home() {
-  const { pendingData, accept, decline } = useContext(appContext);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const { pendingData } = useContext(appContext);
+  const [currentIndex, setCurrentIndex] = useState<number | null>(0);
   const [view, setView] = useState('GRID');
-  const currentPendingItem = pendingData && pendingData[currentIndex];
+  const currentPendingItem = pendingData && typeof currentIndex === 'number' && currentIndex && pendingData[currentIndex];
 
   /**
    * If the view is grid, we want to always have a current index as the user
@@ -29,15 +28,15 @@ function Home() {
   }, [view]);
 
   const previous = () => {
-    setCurrentIndex((prevState) => prevState - 1);
+    setCurrentIndex((prevState) => typeof prevState === 'number' ? prevState - 1 : prevState);
   };
 
   const next = () => {
-    setCurrentIndex((prevState) => prevState + 1);
+    setCurrentIndex((prevState) => typeof prevState === 'number' ? prevState + 1 : prevState);
   };
 
   const hasPrevious = currentIndex !== 0;
-  const hasNext = currentIndex + 1 !== pendingData?.length;
+  const hasNext = typeof currentIndex === 'number' && currentIndex + 1 !== pendingData?.length;
 
   const [style, animate]: any = useSpring(
     () => ({
@@ -60,7 +59,7 @@ function Home() {
    * as it's most likely that they have approved / declined the latest action
    */
   useEffect(() => {
-    if (pendingData && currentIndex + 1 > pendingData.length) {
+    if (pendingData && typeof currentIndex === 'number' && currentIndex + 1 > pendingData.length) {
       const latestItem = pendingData.length - 1;
       setCurrentIndex(latestItem === -1 ? 0 : latestItem);
     }
@@ -132,14 +131,14 @@ function Home() {
             }`}
           >
             {pendingData?.length === 0 && (
-              <div className="flex-grow flex items-center justify-center mb-28">
-                <h5 className="text-core-grey-80">Pending commands will appear here</h5>
+              <div className="flex-grow flex items-center justify-center h-full pb-28">
+                <h5 className="text-core-grey-80 -mr-1.5">Pending commands will appear here</h5>
               </div>
             )}
             <div>
               {pendingData?.map((currentPendingItem, index) => (
                 <div key={currentPendingItem.uid} className="overflow-hidden flex-grow pl-5 pr-3 pb-4">
-                  <div className="bg-core-black-contrast-2 rounded overflow-hidden flex justify-start">
+                  <div className="bg-core-black-contrast-2 rounded-xl overflow-hidden flex justify-start">
                     <div
                       className="w-[80px] h-[80px] bg-cover mx-auto"
                       style={{
@@ -193,7 +192,7 @@ function Home() {
                 <h5 className="text-core-grey-80">Pending commands will appear here</h5>
               </div>
             )}
-            {currentPendingItem && (
+            {currentPendingItem && typeof currentIndex === 'number' && (
               <div className="h-full flex flex-col overflow-hidden bg-core-black-contrast-2">
                 <div className="bg-core-black-contrast">
                   <div className="grid grid-cols-12 p-5">

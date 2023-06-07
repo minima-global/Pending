@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 
 type PanelProps = {
   title: string;
-  value: string | number;
+  value?: string | number;
   link?: string | null;
   copy?: boolean;
   refresh?: boolean;
@@ -73,7 +73,7 @@ const Panel: React.FC<React.PropsWithChildren<PanelProps>> = ({
           </div>
         )}
       </div>
-      <div className={`bg-core-black-100 p-4 flex-grow flex ${mono ? 'font-mono' : ''}`}>
+      <div className={`bg-core-black-100 p-4 flex-grow flex text-sm lg:text-md ${mono ? 'font-mono' : ''}`}>
         {children && <>{children}</>}
         {!children && (
           <div className="grid grid-cols-12">

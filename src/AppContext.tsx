@@ -3,7 +3,7 @@ import { createContext, Dispatch, SetStateAction, useEffect, useRef, useState } 
 import { acceptAction, declineAction, getPendingActions } from './lib';
 import { MDSPendingResponse } from './types';
 import MaskData from 'maskdata';
-import { maskMdsCommand, maskParamCommand, maskVaultCommand } from './config';
+import { maskMdsCommand, maskVaultCommand } from './config';
 
 type AppContext = {
   displayActionModal: {

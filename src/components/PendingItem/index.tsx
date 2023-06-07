@@ -100,7 +100,9 @@ function PendingItem({ data, callback }: any) {
             <div className="text-xl mb-4">Deny command?</div>
             <p className="mb-6">Are you sure you want to deny and remove this pending command?</p>
             <div className="flex-grow">
-              <Panel title="Command" value={data.command} mono copy />
+              <div>
+                <Panel title="Command" value={data.command} mono copy />
+              </div>
             </div>
             <div className="flex gap-4 my-4">
               <Button onClick={showDefaultView} variant="secondary">
@@ -118,14 +120,16 @@ function PendingItem({ data, callback }: any) {
             <h5 className="mb-6 text-core-grey-80">{data.minidapp.conf.name}</h5>
             {output && (
               <div className="flex-grow">
-                <Panel title="Response" copy>
+                <div>
+                  <Panel title="Response" copy>
                   <textarea
                     readOnly
                     className="h-full bg-core-black-100 w-full resize-none custom-scrollbar"
                     rows={4}
                     value={JSON.stringify(output, null, 2)}
                   />
-                </Panel>
+                  </Panel>
+                </div>
               </div>
             )}
             <div>
