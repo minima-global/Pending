@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "package": "bash ./create-minima-app/package.sh",
     "postbuild": "node ./create-minima-app/postbuild.js",
-    "zip": "npm run build && npm run postbuild && npm run package",
+    "copysrc": "bash ./create-minima-app/copySrcToBuild.sh",
+    "zip": "npm run build && npm run postbuild && npm run copysrc && npm run package",
     "src:zip": "bash create-minima-app/zip.sh"
   },
   "dependencies": {
