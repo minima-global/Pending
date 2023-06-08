@@ -80,7 +80,7 @@ function Home() {
             </p>
           </div>
         </div>
-        <div className="pb-5 flex justify-end gap-4">
+        <div className="pb-5 flex justify-end gap-4 px-4 lg:px-0">
           <div
             onClick={() => setView('GRID')}
             className={`cursor-pointer w-fit px-4 py-1 rounded-full font-bold text-sm flex items-center ${
@@ -126,14 +126,14 @@ function Home() {
         </div>
         {view === 'ROW' && (
           <div className={`flex-grow relative`}>
-            {pendingData?.length === 0 && (
+            {(pendingData === null || pendingData?.length === 0) && (
               <div className="flex-grow flex items-center justify-center h-full pb-28">
-                <h5 className="text-core-grey-80 -mr-1.5">Pending commands will appear here</h5>
+                <h5 className="text-core-grey-80">Pending commands will appear here</h5>
               </div>
             )}
             <div>
               {pendingData?.map((currentPendingItem, index) => (
-                <div key={currentPendingItem.uid} className="overflow-hidden flex-grow pb-4">
+                <div key={currentPendingItem.uid} className="overflow-hidden flex-grow pb-4 px-4 lg:px-0">
                   <div className="bg-core-black-contrast-2 rounded-xl overflow-hidden flex justify-start">
                     <div
                       className="w-[80px] h-[80px] bg-cover mx-auto"
