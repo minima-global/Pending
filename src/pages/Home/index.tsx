@@ -87,7 +87,7 @@ function Home() {
               view == 'GRID' ? 'bg-white text-black' : 'bg-core-black-contrast-2'
             }`}
           >
-            Grid
+            Card
             <svg
               className="ml-2.5 -mr-0.5"
               width="20"
