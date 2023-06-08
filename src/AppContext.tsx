@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createContext, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { acceptAction, declineAction, getPendingActions } from './lib';
+import { acceptAction, declineAction, getPendingActions, isWriteMode } from './lib';
 import { MDSPendingResponse } from './types';
 import MaskData from 'maskdata';
 import { maskMdsCommand, maskVaultCommand } from './config';
@@ -34,6 +34,7 @@ type AppContext = {
   pendingData: MDSPendingResponse['pending'] | null;
   startInterval: () => void;
   stopInterval: () => void;
+  appIsInWriteMode: boolean | null;
 };
 
 export const appContext = createContext<AppContext>({
@@ -46,6 +47,7 @@ export const appContext = createContext<AppContext>({
   clearAll: () => null,
   startInterval: () => null,
   stopInterval: () => null,
+  appIsInWriteMode: false,
 });
 
 const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -53,6 +55,7 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [runInterval, setRunInterval] = useState(true);
   const [pendingData, setPendingData] = useState<AppContext['pendingData']>(null);
   const [displayActionModal, setDisplayActionModal] = useState<AppContext['displayActionModal']>(null);
+  const [appIsInWriteMode, setAppIsInWriteMode] = useState<boolean | null>(null);
 
   // init mds
   useEffect(() => {
@@ -61,6 +64,12 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
       (window as any).MDS.init((evt: any) => {
         if (evt.event === 'inited') {
+          // check if app is in write mode and let the rest of the
+          // app know if it is or isn't
+          isWriteMode().then((appIsInWriteMode) => {
+            setAppIsInWriteMode(appIsInWriteMode);
+          });
+
           getPendingActions().then((pendingActionsResponse) => {
             setPendingData(pendingActionsResponse.pending);
           });
@@ -70,7 +79,7 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   }, [loaded]);
 
   useEffect(() => {
-    if (loaded && runInterval) {
+    if (loaded && runInterval && appIsInWriteMode) {
       const interval = setInterval(() => {
         getPendingActions().then((pendingActionsResponse) => {
           setPendingData(pendingActionsResponse.pending);
@@ -81,7 +90,7 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
         clearInterval(interval);
       };
     }
-  }, [loaded, runInterval]);
+  }, [loaded, appIsInWriteMode, runInterval]);
 
   const refresh = () => {
     return getPendingActions().then((pendingActionsResponse) => {
@@ -138,6 +147,7 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     stopInterval,
     startInterval,
     pendingData,
+    appIsInWriteMode,
     displayActionModal,
     setDisplayActionModal,
   };
