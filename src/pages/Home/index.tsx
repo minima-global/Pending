@@ -134,9 +134,9 @@ function Home() {
             <div>
               {pendingData?.map((currentPendingItem, index) => (
                 <div key={currentPendingItem.uid} className="overflow-hidden flex-grow pb-4 px-4 lg:px-0">
-                  <div className="bg-core-black-contrast-2 rounded-xl overflow-hidden flex justify-start">
+                  <div className="bg-core-black-contrast-2 rounded-xl overflow-hidden flex items-center justify-start">
                     <div
-                      className="w-[80px] h-[80px] bg-cover mx-auto"
+                      className="w-[48px] h-[48px] ml-4 mr-1 lg:mr-0 lg:ml-0 rounded lg:w-[80px] lg:h-[80px] bg-cover mx-auto"
                       style={{
                         backgroundImage: `url(${(window as any).MDS.filehost}/${currentPendingItem.minidapp.uid}/${
                           currentPendingItem.minidapp.conf.icon
