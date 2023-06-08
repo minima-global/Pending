@@ -10,7 +10,7 @@ function Home() {
   const { pendingData } = useContext(appContext);
   const [currentIndex, setCurrentIndex] = useState<number | null>(0);
   const [view, setView] = useState('GRID');
-  const currentPendingItem = pendingData && typeof currentIndex === 'number' && currentIndex && pendingData[currentIndex];
+  const currentPendingItem = pendingData && typeof currentIndex === 'number' && pendingData[currentIndex];
 
   /**
    * If the view is grid, we want to always have a current index as the user
@@ -28,11 +28,11 @@ function Home() {
   }, [view]);
 
   const previous = () => {
-    setCurrentIndex((prevState) => typeof prevState === 'number' ? prevState - 1 : prevState);
+    setCurrentIndex((prevState) => (typeof prevState === 'number' ? prevState - 1 : prevState));
   };
 
   const next = () => {
-    setCurrentIndex((prevState) => typeof prevState === 'number' ? prevState + 1 : prevState);
+    setCurrentIndex((prevState) => (typeof prevState === 'number' ? prevState + 1 : prevState));
   };
 
   const hasPrevious = currentIndex !== 0;
@@ -66,9 +66,9 @@ function Home() {
   }, [currentIndex, pendingData]);
 
   return (
-    <div className="app select-none">
-      <div className="flex flex-col h-full">
-        <TitleBar />
+    <div className="app select-none flex flex-col">
+      <TitleBar />
+      <div className="flex-grow flex flex-col mx-auto max-w-xl">
         <div className="p-4 pb-6 grid grid-cols-12">
           <div className="col-span-12 mb-3">
             <h1 className="text-2xl">Pending</h1>
@@ -80,7 +80,7 @@ function Home() {
             </p>
           </div>
         </div>
-        <div className="px-5 pb-5 flex justify-end gap-4">
+        <div className="pb-5 flex justify-end gap-4">
           <div
             onClick={() => setView('GRID')}
             className={`cursor-pointer w-fit px-4 py-1 rounded-full font-bold text-sm flex items-center ${
@@ -125,11 +125,7 @@ function Home() {
           </div>
         </div>
         {view === 'ROW' && (
-          <div
-            className={`flex-grow relative custom-scrollbar ${
-              currentPendingItem ? 'overflow-hidden' : 'overflow-y-scroll'
-            }`}
-          >
+          <div className={`flex-grow relative`}>
             {pendingData?.length === 0 && (
               <div className="flex-grow flex items-center justify-center h-full pb-28">
                 <h5 className="text-core-grey-80 -mr-1.5">Pending commands will appear here</h5>
@@ -137,7 +133,7 @@ function Home() {
             )}
             <div>
               {pendingData?.map((currentPendingItem, index) => (
-                <div key={currentPendingItem.uid} className="overflow-hidden flex-grow pl-5 pr-3 pb-4">
+                <div key={currentPendingItem.uid} className="overflow-hidden flex-grow pb-4">
                   <div className="bg-core-black-contrast-2 rounded-xl overflow-hidden flex justify-start">
                     <div
                       className="w-[80px] h-[80px] bg-cover mx-auto"
@@ -179,7 +175,7 @@ function Home() {
                   </div>
                 </div>
                 <animated.div className="bg-core-black-contrast-2 flex-grow" style={style}>
-                  <PendingItem data={currentPendingItem} callback={() => setCurrentIndex(null) }/>
+                  <PendingItem data={currentPendingItem} callback={() => setCurrentIndex(null)} />
                 </animated.div>
               </div>
             )}

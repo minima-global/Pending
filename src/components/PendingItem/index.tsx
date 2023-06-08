@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { appContext } from '../../AppContext';
 import Panel from '../../components/UI/Panel';
 import Button from '../../components/UI/Button';
@@ -14,6 +14,12 @@ function PendingItem({ data, callback }: any) {
   const [view, setView] = useState(DEFAULT_VIEW);
   const [output, setOutput] = useState<string | null>(null);
   const [, setLocked] = useState(false);
+
+  useEffect(() => {
+    if (view !== DEFAULT_VIEW) {
+      setView(DEFAULT_VIEW);
+    }
+  }, [data])
 
   const showDefaultView = () => setView(DEFAULT_VIEW);
   const showConfirmApproveView = () => setView(APPROVE_VIEW);
@@ -72,7 +78,7 @@ function PendingItem({ data, callback }: any) {
               <div className="flex items-center text-left ml-4">
                 <div>
                   <h5 className="text-2xl mb-1">{data.minidapp.conf.name}</h5>
-                  <p className="text-sm text-core-grey-80">30 Sep 2023 13:00:07 GMT+01</p>
+                  <p className="text-sm text-core-grey-80 hidden">30 Sep 2023 13:00:07 GMT+01</p>
                 </div>
               </div>
             </div>
@@ -104,7 +110,7 @@ function PendingItem({ data, callback }: any) {
                 <Panel title="Command" value={data.command} mono copy />
               </div>
             </div>
-            <div className="flex gap-4 my-4">
+            <div className="flex gap-4 mt-4">
               <Button onClick={showDefaultView} variant="secondary">
                 Cancel
               </Button>
@@ -133,7 +139,7 @@ function PendingItem({ data, callback }: any) {
               </div>
             )}
             <div>
-              <div className="flex w-full my-4 gap-3">
+              <div className="flex w-full mt-4 gap-3">
                 <Button onClick={close} variant="secondary">
                   Close
                 </Button>
@@ -152,7 +158,7 @@ function PendingItem({ data, callback }: any) {
                 <Panel title="Command" value={data.command} mono copy />
               </div>
             </div>
-            <div className="flex gap-4 my-4">
+            <div className="flex gap-4 mt-4">
               <Button onClick={showDefaultView} variant="secondary">
                 Cancel
               </Button>

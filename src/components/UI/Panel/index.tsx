@@ -76,8 +76,8 @@ const Panel: React.FC<React.PropsWithChildren<PanelProps>> = ({
       <div className={`bg-core-black-100 p-4 flex-grow flex text-sm lg:text-md ${mono ? 'font-mono' : ''}`}>
         {children && <>{children}</>}
         {!children && (
-          <div className="grid grid-cols-12">
-            <div className={`${refresh ? 'col-span-12' : 'col-span-9'}`}>
+          <div className="grid grid-cols-12 text-left">
+            <div className={`${refresh ? 'col-span-9' : 'col-span-12'}`}>
               <div
                 className={`lg:text-base break-words ${
                   link ? 'cursor-pointer text-white underline' : 'text-core-grey-80'
