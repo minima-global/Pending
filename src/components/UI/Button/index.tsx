@@ -4,10 +4,17 @@ type ButtonProps = {
   size?: 'default' | 'small';
   variant?: 'primary' | 'secondary';
   onClick?: () => void;
+  loading?: boolean;
 };
 
-const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({ variant = 'primary', size = 'default', onClick = undefined, children }) => {
-  let base = 'w-full rounded font-bold disabled:opacity-40 disabled:cursor-not-allowed';
+const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({
+  loading,
+  variant = 'primary',
+  size = 'default',
+  onClick = undefined,
+  children,
+}) => {
+  let base = 'w-full relative rounded font-bold disabled:opacity-40 disabled:cursor-not-allowed';
 
   if (variant === 'primary') {
     base += ' text-black bg-white';
@@ -21,9 +28,14 @@ const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({ variant = 'pri
     base += ' text-sm px-4 py-2';
   }
 
+  if (loading) {
+    base += ' btn--loading';
+  }
+
   return (
-    <button className={base} onClick={onClick}>
+    <button className={base} onClick={onClick} disabled={loading}>
       {children}
+      {loading && <span className="spinner" />}
     </button>
   );
 };

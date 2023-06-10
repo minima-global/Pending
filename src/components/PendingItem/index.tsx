@@ -12,6 +12,7 @@ const DENY_RESULTS_VIEW = 'DENY_RESULTS_VIEW';
 function PendingItem({ data, callback }: any) {
   const { accept, decline, refresh, startInterval, stopInterval } = useContext(appContext);
   const [view, setView] = useState(DEFAULT_VIEW);
+  const [isLoading, setIsLoading] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
   const [, setLocked] = useState(false);
 
@@ -19,7 +20,15 @@ function PendingItem({ data, callback }: any) {
     if (view !== DEFAULT_VIEW) {
       setView(DEFAULT_VIEW);
     }
-  }, [data])
+  }, [data]);
+
+  useEffect(() => {
+    if (view === DEFAULT_VIEW) {
+      startInterval();
+    } else {
+      stopInterval();
+    }
+  }, [view]);
 
   const showDefaultView = () => setView(DEFAULT_VIEW);
   const showConfirmApproveView = () => setView(APPROVE_VIEW);
@@ -28,11 +37,13 @@ function PendingItem({ data, callback }: any) {
   const approveAction = async () => {
     try {
       stopInterval();
+      setIsLoading(true);
       setLocked(true);
       const response = await accept(data!.uid);
       setOutput(response.command);
       setView(APPROVE_RESULTS_VIEW);
     } finally {
+      setIsLoading(false);
       setLocked(false);
     }
   };
@@ -40,11 +51,13 @@ function PendingItem({ data, callback }: any) {
   const denyAction = async () => {
     try {
       stopInterval();
+      setIsLoading(true);
       setLocked(true);
       const response = await decline(data!.uid);
       setOutput(response.params);
       setView(DENY_RESULTS_VIEW);
     } finally {
+      setIsLoading(false);
       setLocked(false);
     }
   };
@@ -111,10 +124,14 @@ function PendingItem({ data, callback }: any) {
               </div>
             </div>
             <div className="flex gap-4 mt-4">
-              <Button onClick={showDefaultView} variant="secondary">
-                Cancel
+              {!isLoading && (
+                <Button onClick={showDefaultView} variant="secondary">
+                  Cancel
+                </Button>
+              )}
+              <Button loading={isLoading} onClick={denyAction}>
+                Deny
               </Button>
-              <Button onClick={denyAction}>Deny</Button>
             </div>
           </div>
         </>
@@ -128,12 +145,12 @@ function PendingItem({ data, callback }: any) {
               <div className="flex-grow">
                 <div>
                   <Panel title="Response" copy>
-                  <textarea
-                    readOnly
-                    className="h-full bg-core-black-100 w-full resize-none custom-scrollbar"
-                    rows={4}
-                    value={JSON.stringify(output, null, 2)}
-                  />
+                    <textarea
+                      readOnly
+                      className="h-full bg-core-black-100 w-full resize-none custom-scrollbar"
+                      rows={4}
+                      value={JSON.stringify(output, null, 2)}
+                    />
                   </Panel>
                 </div>
               </div>
@@ -159,10 +176,14 @@ function PendingItem({ data, callback }: any) {
               </div>
             </div>
             <div className="flex gap-4 mt-4">
-              <Button onClick={showDefaultView} variant="secondary">
-                Cancel
+              {!isLoading && (
+                <Button onClick={showDefaultView} variant="secondary">
+                  Cancel
+                </Button>
+              )}
+              <Button loading={isLoading} onClick={approveAction}>
+                Approve
               </Button>
-              <Button onClick={approveAction}>Approve</Button>
             </div>
           </div>
         </>
