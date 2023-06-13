@@ -67,11 +67,13 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
           // check if app is in write mode and let the rest of the
           // app know if it is or isn't
           isWriteMode().then((appIsInWriteMode) => {
-            setAppIsInWriteMode(appIsInWriteMode);
-          });
+            if (appIsInWriteMode) {
+              getPendingActions().then((pendingActionsResponse) => {
+                setPendingData(pendingActionsResponse.pending);
+              });
+            }
 
-          getPendingActions().then((pendingActionsResponse) => {
-            setPendingData(pendingActionsResponse.pending);
+            setAppIsInWriteMode(appIsInWriteMode);
           });
         }
       });
