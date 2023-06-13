@@ -70,10 +70,7 @@ function Home() {
       <div className="lg:bg-core-black-contrast">
         <TitleBar />
         <div className="flex flex-col mx-auto max-w-xl">
-          <div className="p-4 lg:pt-0 lg:px-0 pb-6 grid grid-cols-12">
-            <div className="col-span-12 mb-3">
-              <h1 className="text-2xl">Pending</h1>
-            </div>
+          <div className="p-4 lg:pt-4 lg:px-0 pb-6 grid grid-cols-12">
             <div className="col-span-12">
               <p className="text-core-grey-100 text-sm">
                 Pending commands are triggered when Read mode MiniDapps attempt to access to your wallet. Review pending
@@ -117,7 +114,7 @@ function Home() {
         {view === 'ROW' && (
           <div className={`flex-grow relative`}>
             {(pendingData === null || pendingData?.length === 0) && (
-              <div className="flex-grow flex items-center justify-center h-full pb-28">
+              <div className="lg:mt-4 flex-grow flex items-center justify-center h-full pb-28">
                 <h5 className="text-core-grey-80">Pending commands will appear here</h5>
               </div>
             )}
@@ -178,7 +175,7 @@ function Home() {
         {view === 'GRID' && (
           <>
             {!currentPendingItem && (
-              <div className="flex-grow flex items-center justify-center mb-28">
+              <div className="lg:mt-4 flex-grow flex items-center justify-center mb-28">
                 <h5 className="text-core-grey-80">Pending commands will appear here</h5>
               </div>
             )}
