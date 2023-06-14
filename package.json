@@ -1,7 +1,7 @@
 {
   "name": "pending",
   "private": true,
-  "description": "Approve and deny pending minidapp actions",
+  "description": "Approve and deny pending MiniDapp actions",
   "version": "0.2.2",
   "type": "module",
   "scripts": {
