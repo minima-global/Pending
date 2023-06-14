@@ -73,8 +73,7 @@ function Home() {
           <div className="p-4 lg:pt-4 lg:px-0 pb-6 grid grid-cols-12">
             <div className="col-span-12">
               <p className="text-core-grey-100 text-sm">
-                Pending commands are triggered when Read mode MiniDapps attempt to access to your wallet. Review pending
-                commands to accept or deny a request.
+                Pending commands are triggered when a MiniDapp attempts to access your wallet. Accept commands you would like to go ahead with and deny any others.
               </p>
             </div>
           </div>
