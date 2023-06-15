@@ -2,7 +2,7 @@
   "name": "pending",
   "private": true,
   "description": "Approve and deny pending MiniDapp actions",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

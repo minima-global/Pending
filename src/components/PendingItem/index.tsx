@@ -72,6 +72,9 @@ function PendingItem({ data, callback }: any) {
     }
   };
 
+  const safePassword = data.command.replace(/password:[^ ]+/gm, 'password:***');
+  const commandHasPasswordParam = data.command.match(/password:[^ ]+/gm);
+
   return (
     <div className="flex flex-col h-full">
       {view === DEFAULT_VIEW && (
@@ -97,7 +100,7 @@ function PendingItem({ data, callback }: any) {
             </div>
             <div className="my-6 flex-grow">
               <div>
-                <Panel title="Command" value={data.command} mono copy />
+                <Panel title="Command" value={safePassword} mono copy={!commandHasPasswordParam} />
               </div>
             </div>
             <div className="flex gap-4">
@@ -120,7 +123,7 @@ function PendingItem({ data, callback }: any) {
             <p className="mb-6">Are you sure you want to deny and remove this pending command?</p>
             <div className="flex-grow">
               <div>
-                <Panel title="Command" value={data.command} mono copy />
+                <Panel title="Command" value={safePassword} mono copy={!commandHasPasswordParam} />
               </div>
             </div>
             <div className="flex gap-4 mt-4">
@@ -147,7 +150,7 @@ function PendingItem({ data, callback }: any) {
                   <Panel title="Response" copy>
                     <textarea
                       readOnly
-                      className="h-full bg-core-black-100 w-full resize-none custom-scrollbar"
+                      className="h-full bg-core-black-100 w-full resize-none custom-scrollbar lg:min-h-[250px]"
                       rows={4}
                       value={JSON.stringify(output, null, 2)}
                     />
@@ -172,7 +175,7 @@ function PendingItem({ data, callback }: any) {
             <p className="mb-6">Are you sure you want to accept and run this pending command?</p>
             <div className="flex-grow text-left">
               <div>
-                <Panel title="Command" value={data.command} mono copy />
+                <Panel title="Command" value={safePassword} mono copy={!commandHasPasswordParam} />
               </div>
             </div>
             <div className="flex gap-4 mt-4">
@@ -198,7 +201,7 @@ function PendingItem({ data, callback }: any) {
                 <Panel title="Response" copy>
                   <textarea
                     readOnly
-                    className="h-full bg-core-black-100 w-full resize-none custom-scrollbar"
+                    className="h-full bg-core-black-100 w-full resize-none custom-scrollbar lg:min-h-[250px]"
                     rows={4}
                     value={output}
                   />
