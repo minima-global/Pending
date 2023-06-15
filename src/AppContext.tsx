@@ -3,7 +3,7 @@ import { createContext, Dispatch, SetStateAction, useEffect, useRef, useState } 
 import { acceptAction, declineAction, getPendingActions, isWriteMode } from './lib';
 import { MDSPendingResponse } from './types';
 import MaskData from 'maskdata';
-import { maskMdsCommand, maskVaultCommand, maskVaultSetCommand } from './config';
+import { mask } from './config';
 
 type AppContext = {
   displayActionModal: {
@@ -102,30 +102,18 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   const accept = async (uid: string) => {
     return acceptAction(uid).then((response) => {
-      let maskCommand = {};
+      let finalResponse = response.response;
 
-      console.log(response.response);
-
-      if (response.command === 'mds') {
-        maskCommand = maskMdsCommand;
+      if (finalResponse.params) {
+        finalResponse.params = MaskData.maskJSON2(finalResponse.params, mask);
       }
 
-      if (response.response.command === 'vault') {
-        console.log('hello');
-        maskCommand = maskVaultCommand;
+      if (finalResponse.response) {
+        finalResponse.response = MaskData.maskJSON2(finalResponse.response, mask);
       }
-
-      if (
-        response.response.command === 'vault' &&
-        response.response && response.response.params && response.response.params.action &&
-        ['passwordlock', 'passwordunlock'].includes(response.response.params.action)
-      ) {
-        maskCommand = maskVaultSetCommand;
-      }
-
 
       return {
-        command: JSON.stringify(MaskData.maskJSON2(response.response, maskCommand), null, 2),
+        command: JSON.stringify(finalResponse, null, 2),
       };
     });
   };
