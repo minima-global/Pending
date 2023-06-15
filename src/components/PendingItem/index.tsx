@@ -72,8 +72,16 @@ function PendingItem({ data, callback }: any) {
     }
   };
 
-  const safePassword = data.command.replace(/password:[^ ]+/gm, 'password:***');
-  const commandHasPasswordParam = data.command.match(/password:[^ ]+/gm);
+  const safePassword = data.command
+    .replace(/phrase:[^ ]+/gm, 'phrase:***')
+    .replace(/confirm:[^ ]+/gm, 'confirm:***')
+    .replace(/password:[^ ]+/gm, 'password:***');
+
+  // any of these params in the command means we disable the copy button
+  const commandHasPasswordParam =
+    data.command.match(/phrase:[^ ]+/gm) ||
+    data.command.match(/confirm:[^ ]+/gm) ||
+    data.command.match(/password:[^ ]+/gm);
 
   return (
     <div className="flex flex-col h-full">
