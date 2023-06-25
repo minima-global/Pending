@@ -109,7 +109,7 @@ function Home() {
           </div>
         </div>
       </div>
-      <div className="flex-grow lg:grow-0 flex flex-col mx-auto w-full max-w-xl lg:pt-4">
+      <div className="flex-grow lg:grow-0 lg:pb-4 flex flex-col mx-auto w-full max-w-xl lg:pt-4">
         {view === 'ROW' && (
           <div className={`flex-grow relative`}>
             {(pendingData === null || pendingData?.length === 0) && (
