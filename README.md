@@ -14,3 +14,4 @@ VITE_DEBUG_UID=
 3. Run the application by running `yarn run dev`
 
 Alternatively, run `npm run zip` and then install the mds zip file in the root folder.
+ 
