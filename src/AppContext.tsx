@@ -113,6 +113,7 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
       }
 
       return {
+        response: finalResponse,
         command: JSON.stringify(finalResponse, null, 2),
       };
     });

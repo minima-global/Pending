@@ -14,6 +14,7 @@ function PendingItem({ data, callback }: any) {
   const [view, setView] = useState(DEFAULT_VIEW);
   const [isLoading, setIsLoading] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
+  const [response, setResponse] = useState<any>({});
   const [, setLocked] = useState(false);
 
   useEffect(() => {
@@ -39,8 +40,10 @@ function PendingItem({ data, callback }: any) {
       stopInterval();
       setIsLoading(true);
       setLocked(true);
+      setResponse(null);
       const response = await accept(data!.uid);
       setOutput(response.command);
+      setResponse(response.response);
       setView(APPROVE_RESULTS_VIEW);
     } finally {
       setIsLoading(false);
@@ -204,6 +207,35 @@ function PendingItem({ data, callback }: any) {
           <div className="flex-grow flex flex-col h-full p-5 text-center">
             <div className="text-xl mb-3">Command approved</div>
             <h5 className="mb-4 text-core-grey-80">{data.minidapp.conf.name}</h5>
+            {response && response.status && (
+              <div className="mb-3">
+                <div className="flex gap-3 bg-lime-500 text-black font-bold w-full text-left p-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                       className="feather feather-check-circle">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                  </svg>
+                  The command was successful
+                </div>
+              </div>
+            )}
+            {response && !response.status && (
+              <div className="mb-3 text-white">
+                <div className="flex gap-3 bg-red-600 font-bold w-full text-left p-3">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                       stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                  The command failed
+                </div>
+                <div className="text-sm flex gap-3 mb-4 bg-red-800 font-bold w-full text-left p-3">
+                  {response.error}
+                </div>
+              </div>
+            )}
             {output && (
               <div className="flex-grow mb-4">
                 <Panel title="Response" copy>
