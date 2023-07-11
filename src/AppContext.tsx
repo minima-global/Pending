@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createContext, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { acceptAction, declineAction, getPendingActions, isWriteMode } from './lib';
+import { acceptAction, declineAction, get, getPendingActions, isWriteMode, set } from './lib';
 import { MDSPendingResponse } from './types';
 import MaskData from 'maskdata';
 import { mask } from './config';
@@ -35,6 +35,8 @@ type AppContext = {
   startInterval: () => void;
   stopInterval: () => void;
   appIsInWriteMode: boolean | null;
+  hideHelp: boolean;
+  dismissHelp: () => void;
 };
 
 export const appContext = createContext<AppContext>({
@@ -45,13 +47,16 @@ export const appContext = createContext<AppContext>({
   decline: async () => null,
   refresh: async () => null,
   clearAll: () => null,
+  hideHelp: false,
   startInterval: () => null,
   stopInterval: () => null,
   appIsInWriteMode: false,
+  dismissHelp: () => null,
 });
 
 const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const loaded = useRef(false);
+  const [hideHelp, setHideHelp] = useState(true);
   const [runInterval, setRunInterval] = useState(true);
   const [pendingData, setPendingData] = useState<AppContext['pendingData']>(null);
   const [displayActionModal, setDisplayActionModal] = useState<AppContext['displayActionModal']>(null);
@@ -64,6 +69,13 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
       (window as any).MDS.init((evt: any) => {
         if (evt.event === 'inited') {
+          get('HIDE_HELP').then(function (response) {
+            if (response === '1') {
+              setHideHelp(true);
+            } else {
+              setHideHelp(false);
+            }
+          });
           // check if app is in write mode and let the rest of the
           // app know if it is or isn't
           isWriteMode().then((appIsInWriteMode) => {
@@ -119,7 +131,7 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     });
   };
 
-  const decline = (uid: string) => {
+  const decline = async (uid: string) => {
     return declineAction(uid).then((response) => {
       return {
         params: response.params,
@@ -142,16 +154,25 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
    * just disappears
    */
   const startInterval = () => setRunInterval(true);
+
   const stopInterval = () => setRunInterval(false);
+
+  // hide help
+  const dismissHelp = () => {
+    set('HIDE_HELP', '1');
+    setHideHelp(true);
+  };
 
   const value = {
     accept,
     decline,
     clearAll,
     refresh,
+    hideHelp,
     stopInterval,
     startInterval,
     pendingData,
+    dismissHelp,
     appIsInWriteMode,
     displayActionModal,
     setDisplayActionModal,

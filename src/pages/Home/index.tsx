@@ -7,7 +7,7 @@ import { useSpring } from 'react-spring';
 import PendingItem from '../../components/PendingItem';
 
 function Home() {
-  const { pendingData } = useContext(appContext);
+  const { hideHelp, pendingData } = useContext(appContext);
   const [currentIndex, setCurrentIndex] = useState<number | null>(0);
   const [view, setView] = useState('GRID');
   const currentPendingItem = pendingData && typeof currentIndex === 'number' && pendingData[currentIndex];
@@ -70,9 +70,9 @@ function Home() {
       <div className="lg:bg-core-black-contrast">
         <TitleBar />
         <div className="flex flex-col mx-auto max-w-xl">
-          <div className="p-4 lg:pt-4 lg:px-0 pb-6 grid grid-cols-12">
+          <div className={`grid grid-cols-12 transition-scale duration-200 ${!hideHelp ? '`m-4 lg:pt-4 lg:px-0 pb-6 scale-y-100' : 'opacity-0 scale-y-0 h-[0px] w-[0px]'}`}>
             <div className="col-span-12">
-              <p className="text-core-grey-100 text-sm">
+              <p className={`text-core-grey-100 text-sm transition-opacity duration-100 delay-150 ${!hideHelp ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>
                 Pending commands are triggered when a MiniDapp attempts to access your wallet. Accept commands you would like to go ahead with and deny any others.
               </p>
             </div>
@@ -123,11 +123,11 @@ function Home() {
                   <div key={currentPendingItem.uid} className="overflow-hidden flex-grow pb-4 px-4 lg:px-0">
                     <div className="bg-core-black-contrast-2 rounded-xl overflow-hidden flex items-center justify-start">
                       <div
-                        className="w-[48px] h-[48px] ml-4 mr-1 lg:mr-0 lg:ml-0 rounded lg:min-w-[80px] lg:h-[80px] bg-cover mx-auto"
+                        className="min-w-[48px] w-[48px] h-[48px] ml-4 mr-1 lg:mr-0 lg:ml-0 rounded lg:min-w-[80px] lg:h-[80px] bg-cover mx-auto"
                         style={{
                           backgroundImage: `url(${(window as any).MDS.filehost}/${currentPendingItem.minidapp.uid}/${
                             currentPendingItem.minidapp.conf.icon
-                          }), url('./app.png')`,
+                          }), url('./assets/app.png')`,
                         }}
                       />
                       <div className="flex-grow p-4 w-full overflow-hidden">

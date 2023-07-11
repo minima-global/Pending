@@ -10,7 +10,7 @@ const APPROVE_RESULTS_VIEW = 'APPROVE_RESULTS_VIEW';
 const DENY_RESULTS_VIEW = 'DENY_RESULTS_VIEW';
 
 function PendingItem({ data, callback }: any) {
-  const { accept, decline, refresh, startInterval, stopInterval } = useContext(appContext);
+  const { accept, decline, refresh, dismissHelp, startInterval, stopInterval } = useContext(appContext);
   const [view, setView] = useState(DEFAULT_VIEW);
   const [isLoading, setIsLoading] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
@@ -32,8 +32,14 @@ function PendingItem({ data, callback }: any) {
   }, [view]);
 
   const showDefaultView = () => setView(DEFAULT_VIEW);
-  const showConfirmApproveView = () => setView(APPROVE_VIEW);
-  const showConfirmDenyView = () => setView(DENY_VIEW);
+  const showConfirmApproveView = () => {
+    dismissHelp();
+    setView(APPROVE_VIEW);
+  }
+  const showConfirmDenyView = () => {
+    dismissHelp();
+    setView(DENY_VIEW);
+  };
 
   const approveAction = async () => {
     try {
@@ -98,7 +104,7 @@ function PendingItem({ data, callback }: any) {
                   style={{
                     backgroundImage: `url(${(window as any).MDS.filehost}/${data.minidapp.uid}/${
                       data.minidapp.conf.icon
-                    }), url('./app.png')`,
+                    }), url('./assets/app.png')`,
                   }}
                 />
               </div>
