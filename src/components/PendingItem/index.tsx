@@ -164,7 +164,7 @@ function PendingItem({ data, callback }: any) {
             {output && (
               <div className="flex-grow">
                 <div>
-                  <Panel title="Response" copy>
+                  <Panel title="Response" copy value={output}>
                     <textarea
                       readOnly
                       className="h-full bg-core-black-100 w-full resize-none custom-scrollbar lg:min-h-[250px]"
@@ -244,7 +244,7 @@ function PendingItem({ data, callback }: any) {
             )}
             {output && (
               <div className="flex-grow mb-4">
-                <Panel title="Response" copy>
+                <Panel title="Response" copy value={output}>
                   <textarea
                     readOnly
                     className="h-full bg-core-black-100 w-full resize-none custom-scrollbar lg:min-h-[250px]"
