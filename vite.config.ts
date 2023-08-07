@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react-swc';
 import { createHtmlPlugin } from 'vite-plugin-html';
 import packageJson from './package.json';
 import capitalize from "lodash/capitalize";
+import legacy from '@vitejs/plugin-legacy';
 
 export default ({ mode }) => {
   let devEnv = '';
@@ -26,6 +27,9 @@ export default ({ mode }) => {
     },
     plugins: [
       react(),
+      legacy({
+        targets: ['defaults', 'not IE 11', 'Android >= 9'],
+      }),
       createHtmlPlugin({
         inject: {
           data: {
