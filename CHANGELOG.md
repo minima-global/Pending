@@ -2,7 +2,7 @@
 
 ##### [1.0.5] - 15 August 23
 
-- Updated check mode write access check
+- Write access checks for the MiniDapp has been updated
 
 ##### [1.0.4] - 3 August 23
 
