@@ -8,7 +8,7 @@ export function VaultLockModal({ callback }) {
   const { displayVaultIsLocked, setDisplayVaultIsLocked } = useContext(appContext);
   const display = displayVaultIsLocked;
   const [password, setPassword] = useState('');
-  const [error, setError] = useState(false);
+  const [error, setError] = useState<string | false>(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -36,7 +36,7 @@ export function VaultLockModal({ callback }) {
       await callback();
       lock(password);
     } catch (error) {
-      setError(error);
+      setError(error as string);
     } finally {
       setIsLoading(false);
     }

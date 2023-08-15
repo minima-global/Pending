@@ -1,12 +1,12 @@
 import * as React from 'react';
 
 type ButtonProps = {
-  size?: 'default' | 'small';
+  size?: 'default' | 'small' | 'medium';
   variant?: 'primary' | 'secondary';
   onClick?: () => void;
   loading?: boolean;
   disabled?: boolean;
-  type: 'button' | 'submit';
+  type?: 'button' | 'submit';
 };
 
 const Button: React.FC<React.PropsWithChildren<ButtonProps>> = ({

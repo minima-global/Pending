@@ -39,6 +39,7 @@ type AppContext = {
   dismissHelp: () => void;
   displayVaultIsLocked: boolean;
   setDisplayVaultIsLocked: (state: boolean) => void;
+  nodeLocked: boolean;
 };
 
 export const appContext = createContext<AppContext>({
@@ -56,6 +57,7 @@ export const appContext = createContext<AppContext>({
   dismissHelp: () => null,
   displayVaultIsLocked: false,
   setDisplayVaultIsLocked: () => null,
+  nodeLocked: false,
 });
 
 const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -194,7 +196,6 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     displayVaultIsLocked,
     setDisplayVaultIsLocked,
     nodeLocked,
-    setNodeLocked,
   };
 
   return <appContext.Provider value={value}>{children}</appContext.Provider>;
