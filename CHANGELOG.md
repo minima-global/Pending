@@ -1,5 +1,13 @@
 # Changelog
 
+##### [1.1.0] - 15 August 23
+
+- You can now confirm your vault password when accepting commands
+
+##### [1.0.7] - 15 August 23
+
+- Minor bug fixes
+
 ##### [1.0.6] - 15 August 23
 
 - Write access checks for the MiniDapp has been updated

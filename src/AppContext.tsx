@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { createContext, Dispatch, SetStateAction, useEffect, useRef, useState } from 'react';
-import { acceptAction, declineAction, get, getPendingActions, isWriteMode, set } from './lib';
+import { acceptAction, declineAction, get, getPendingActions, isLocked, isWriteMode, set } from './lib';
 import { MDSPendingResponse } from './types';
 import MaskData from 'maskdata';
 import { mask } from './config';
@@ -37,6 +37,8 @@ type AppContext = {
   appIsInWriteMode: boolean | null;
   hideHelp: boolean;
   dismissHelp: () => void;
+  displayVaultIsLocked: boolean;
+  setDisplayVaultIsLocked: (state: boolean) => void;
 };
 
 export const appContext = createContext<AppContext>({
@@ -52,13 +54,17 @@ export const appContext = createContext<AppContext>({
   stopInterval: () => null,
   appIsInWriteMode: false,
   dismissHelp: () => null,
+  displayVaultIsLocked: false,
+  setDisplayVaultIsLocked: () => null,
 });
 
 const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const loaded = useRef(false);
+  const [nodeLocked, setNodeLocked] = useState(false);
   const [hideHelp, setHideHelp] = useState(true);
   const [runInterval, setRunInterval] = useState(true);
   const [pendingData, setPendingData] = useState<AppContext['pendingData']>(null);
+  const [displayVaultIsLocked, setDisplayVaultIsLocked] = useState<boolean>(false);
   const [displayActionModal, setDisplayActionModal] = useState<AppContext['displayActionModal']>(null);
   const [appIsInWriteMode, setAppIsInWriteMode] = useState<boolean | null>(null);
 
@@ -76,6 +82,11 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
               setHideHelp(false);
             }
           });
+
+          isLocked().then((response) => {
+            setNodeLocked(response);
+          });
+
           // check if app is in write mode and let the rest of the
           // app know if it is or isn't
           isWriteMode().then((appIsInWriteMode) => {
@@ -86,6 +97,10 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
             }
 
             setAppIsInWriteMode(appIsInWriteMode);
+          });
+        } else if (evt.event === 'NEWBLOCK') {
+          isLocked().then((response) => {
+            setNodeLocked(response);
           });
         }
       });
@@ -176,6 +191,10 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     appIsInWriteMode,
     displayActionModal,
     setDisplayActionModal,
+    displayVaultIsLocked,
+    setDisplayVaultIsLocked,
+    nodeLocked,
+    setNodeLocked,
   };
 
   return <appContext.Provider value={value}>{children}</appContext.Provider>;

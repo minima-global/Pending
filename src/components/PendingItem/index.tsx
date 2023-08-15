@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { appContext } from '../../AppContext';
 import Panel from '../../components/UI/Panel';
 import Button from '../../components/UI/Button';
+import VaultLockModal from '../VaultLockModal';
 
 const DEFAULT_VIEW = 'DEFAULT_VIEW';
 const APPROVE_VIEW = 'APPROVE_VIEW';
@@ -10,7 +11,8 @@ const APPROVE_RESULTS_VIEW = 'APPROVE_RESULTS_VIEW';
 const DENY_RESULTS_VIEW = 'DENY_RESULTS_VIEW';
 
 function PendingItem({ data, callback }: any) {
-  const { accept, decline, refresh, dismissHelp, startInterval, stopInterval } = useContext(appContext);
+  const { nodeLocked, accept, decline, refresh, dismissHelp, startInterval, stopInterval, setDisplayVaultIsLocked } =
+    useContext(appContext);
   const [view, setView] = useState(DEFAULT_VIEW);
   const [isLoading, setIsLoading] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
@@ -32,16 +34,28 @@ function PendingItem({ data, callback }: any) {
   }, [view]);
 
   const showDefaultView = () => setView(DEFAULT_VIEW);
+
   const showConfirmApproveView = () => {
     dismissHelp();
     setView(APPROVE_VIEW);
-  }
+  };
   const showConfirmDenyView = () => {
     dismissHelp();
     setView(DENY_VIEW);
   };
 
   const approveAction = async () => {
+    if (
+      // node is locked
+      nodeLocked &&
+      // command does not include password
+      !data.command.includes('password:') &&
+      // command is one of the following &&
+      /send|sendpoll|multisig|tokencreate|consolidate/gi.test(data.command)
+    ) {
+      return setDisplayVaultIsLocked(true);
+    }
+
     try {
       stopInterval();
       setIsLoading(true);
@@ -51,6 +65,23 @@ function PendingItem({ data, callback }: any) {
       setOutput(response.command);
       setResponse(response.response);
       setView(APPROVE_RESULTS_VIEW);
+    } finally {
+      setIsLoading(false);
+      setLocked(false);
+    }
+  };
+
+  const nodeUnlockedCallback = async () => {
+    try {
+      stopInterval();
+      setIsLoading(true);
+      setLocked(true);
+      setResponse(null);
+      const response = await accept(data!.uid);
+      setOutput(response.command);
+      setResponse(response.response);
+      setView(APPROVE_RESULTS_VIEW);
+      return true;
     } finally {
       setIsLoading(false);
       setLocked(false);
@@ -94,6 +125,7 @@ function PendingItem({ data, callback }: any) {
 
   return (
     <div className="flex flex-col h-full">
+      <VaultLockModal callback={nodeUnlockedCallback} />
       {view === DEFAULT_VIEW && (
         <>
           <div className="flex-grow flex flex-col h-full p-5 text-center">
@@ -216,9 +248,18 @@ function PendingItem({ data, callback }: any) {
             {response && response.status && (
               <div className="mb-3">
                 <div className="flex gap-3 bg-lime-500 text-black font-bold w-full text-left p-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                       className="feather feather-check-circle">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="feather feather-check-circle"
+                  >
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
                     <polyline points="22 4 12 14.01 9 11.01"></polyline>
                   </svg>
@@ -229,8 +270,17 @@ function PendingItem({ data, callback }: any) {
             {response && !response.status && (
               <div className="mb-3 text-white">
                 <div className="flex gap-3 bg-red-600 font-bold w-full text-left p-3">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                       stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
                     <circle cx="12" cy="12" r="10"></circle>
                     <line x1="15" y1="9" x2="9" y2="15"></line>
                     <line x1="9" y1="9" x2="15" y2="15"></line>

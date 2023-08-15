@@ -40,7 +40,19 @@ export function isWriteMode(): Promise<boolean> {
   return new Promise((resolve, reject) => {
     (window as any).MDS.cmd(`checkmode`, function (response: any) {
       if (response.status) {
-        return resolve(response.response.checkmode);
+        return resolve(response.response.writemode);
+      }
+
+      return reject();
+    });
+  });
+}
+
+export function isLocked(): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    (window as any).MDS.cmd(`status`, function (response: any) {
+      if (response.status) {
+        return resolve(response.response.locked);
       }
 
       return reject();
@@ -68,6 +80,30 @@ export function get(key: string) {
       }
 
       return resolve('0');
+    });
+  });
+}
+
+export function lock(password: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    (window as any).MDS.cmd(`vault action:passwordlock password:${password}`, function (response: any) {
+      if (response.status) {
+        return resolve(response.status);
+      }
+
+      return resolve();
+    });
+  });
+}
+
+export function unlock(password: string): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    (window as any).MDS.cmd(`vault action:passwordunlock password:${password}`, function (response: any) {
+      if (response.status) {
+        return resolve(response.status);
+      }
+
+      return reject(response.error);
     });
   });
 }

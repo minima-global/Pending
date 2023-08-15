@@ -40,7 +40,7 @@ export const Modal: React.FC<PropsWithChildren<ModalProps>> = ({ frosted = false
                   </Button>
                 </div>
               )}
-              {frosted && <div className="fixed z-40 backdrop-blur-2xl bg-black/70 top-0 left-0 w-full h-full"></div>}
+              {frosted && <div className="fixed z-40 backdrop-blur-2xl bg-black/20 top-0 left-0 w-full h-full"></div>}
             </div>
           )}
         </div>
