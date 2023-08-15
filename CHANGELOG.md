@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.0.5] - 15 August 23
+
+- Updated check mode write access check
+
 ##### [1.0.4] - 3 August 23
 
 - Updated "App is in read mode" text content
