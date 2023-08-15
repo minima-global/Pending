@@ -2,7 +2,7 @@
 
 ##### [1.1.0] - 15 August 23
 
-- You can now confirm your vault password when accepting commands
+- You can now unlock your node when accepting commands that require a node to be locked
 
 ##### [1.0.7] - 15 August 23
 
