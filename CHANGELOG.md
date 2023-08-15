@@ -1,6 +1,6 @@
 # Changelog
 
-##### [1.0.5] - 15 August 23
+##### [1.0.6] - 15 August 23
 
 - Write access checks for the MiniDapp has been updated
 
