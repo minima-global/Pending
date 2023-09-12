@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.1.1] - 12 September 23
+
+- updated mds.js
+
 ##### [1.1.0] - 15 August 23
 
 - You can now unlock your node when accepting commands that require a node to be locked
