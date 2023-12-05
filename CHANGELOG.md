@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.1.1] - 05 December 23
+
+- updated mds.js
+
 ##### [1.1.0] - 15 August 23
 
 - You can now confirm your vault password when accepting commands

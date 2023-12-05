@@ -84,8 +84,8 @@ export function get(key: string) {
   });
 }
 
-export function lock(password: string): Promise<boolean> {
-  return new Promise((resolve, reject) => {
+export function lock(password: string): Promise<boolean|void> {
+  return new Promise((resolve) => {
     (window as any).MDS.cmd(`vault action:passwordlock password:${password}`, function (response: any) {
       if (response.status) {
         return resolve(response.status);

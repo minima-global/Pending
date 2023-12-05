@@ -39,9 +39,11 @@ type AppContext = {
   dismissHelp: () => void;
   displayVaultIsLocked: boolean;
   setDisplayVaultIsLocked: (state: boolean) => void;
+  nodeLocked: boolean,
 };
 
 export const appContext = createContext<AppContext>({
+  nodeLocked: false,
   displayActionModal: null,
   setDisplayActionModal: () => null,
   pendingData: null,
@@ -129,7 +131,7 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
 
   const accept = async (uid: string) => {
     return acceptAction(uid).then((response) => {
-      let finalResponse = response.response;
+      const finalResponse = response.response;
 
       if (finalResponse.params) {
         finalResponse.params = MaskData.maskJSON2(finalResponse.params, mask);

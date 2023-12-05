@@ -36,7 +36,7 @@ export function VaultLockModal({ callback }) {
       await callback();
       lock(password);
     } catch (error) {
-      setError(error);
+      setError(error as boolean);
     } finally {
       setIsLoading(false);
     }
