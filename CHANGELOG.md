@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.2.0] - 06 December 23
+
+- extended vault lock commands, added sign & txnsign
+
 ##### [1.1.1] - 05 December 23
 
 - updated mds.js

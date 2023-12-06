@@ -51,7 +51,7 @@ function PendingItem({ data, callback }: any) {
       // command does not include password
       !data.command.includes('password:') &&
       // command is one of the following &&
-      /send|sendpoll|multisig|tokencreate|consolidate/gi.test(data.command)
+      /send|sendpoll|multisig|tokencreate|consolidate|sign|txnsign/gi.test(data.command)
     ) {
       return setDisplayVaultIsLocked(true);
     }
