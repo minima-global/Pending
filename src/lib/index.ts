@@ -107,3 +107,16 @@ export function unlock(password: string): Promise<boolean> {
     });
   });
 }
+
+export function tokenInfo(tokenId: string): Promise<{ name: string | Record<string, string>; token: string | Record<string, string> }> {
+  return new Promise((resolve, reject) => {
+    (window as any).MDS.cmd(`balance tokenid:${tokenId}`, function (response: any) {
+      if (response.status) {
+        return resolve(response.response[0]);
+      }
+
+      return reject(response.error);
+    });
+  });
+}
+

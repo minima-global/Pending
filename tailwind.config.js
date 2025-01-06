@@ -18,6 +18,7 @@ export default {
       yellow: colors.yellow,
       red: colors.red,
       lime: colors.lime,
+      slate: colors.slate,
       'core-black-contrast': '#17191c',
     },
     extend: {
