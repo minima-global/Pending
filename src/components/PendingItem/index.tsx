@@ -592,7 +592,7 @@ function PendingItem({ data, callback }: any) {
       return (
         <div>
           <div>
-            {commandDetails.enable === 'true' && <div>You are about to enable RPC on your node. This may expose your node to public access if not protected by a firewall. USE WITH CAUTION.</div>}
+            {commandDetails.enable === 'true' && <div>You are about to enable RPC on your node. This may expose your node to public access if not protected by a firewall. <strong>USE WITH CAUTION</strong>.</div>}
             {commandDetails.enable === 'false' && <div>You are about to disable RPC on your node. If external applications are using RPC to communicate with your node, these will no longer function as expected.</div>}
             {(commandDetails.ssl || commandDetails.password) && (
               <ul className="mt-2 ml-4 list-disc text-[13px]">
