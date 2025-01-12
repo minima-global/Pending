@@ -72,7 +72,7 @@ function Home() {
         <div className="flex flex-col mx-auto max-w-xl">
           <div className={`grid grid-cols-12 transition-scale duration-200 ${!hideHelp ? '`m-4 lg:pt-4 lg:px-0 pb-6 scale-y-100' : 'opacity-0 scale-y-0 h-[0px] w-[0px]'}`}>
             <div className="col-span-12">
-              <p className={`text-core-grey-100 text-sm transition-opacity duration-100 delay-150 ${!hideHelp ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>
+              <p className={`px-4 lg:px-0 text-xs lg:text-base text-core-grey-100 text-sm transition-opacity duration-100 delay-150 ${!hideHelp ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}>
                 Pending commands are triggered when a MiniDapp attempts to access your wallet. Accept commands you would like to go ahead with and deny any others.
               </p>
             </div>

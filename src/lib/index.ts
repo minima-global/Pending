@@ -120,3 +120,14 @@ export function tokenInfo(tokenId: string): Promise<{ name: string | Record<stri
   });
 }
 
+export function getScript(address: string): Promise<string | null> {
+  return new Promise((resolve) => {
+    (window as any).MDS.cmd(`scripts address:${address}`, function (response: any) {
+      if (response.status && response.response.script) {
+        return resolve(response.response.script);
+      }
+
+      return resolve(null);
+    });
+  });
+}

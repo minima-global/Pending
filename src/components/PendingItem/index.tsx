@@ -3,7 +3,7 @@ import { appContext } from '../../AppContext';
 import Panel from '../../components/UI/Panel';
 import Button from '../../components/UI/Button';
 import VaultLockModal from '../VaultLockModal';
-import { tokenInfo } from '../../lib';
+import { getScript, tokenInfo } from '../../lib';
 
 const DEFAULT_VIEW = 'DEFAULT_VIEW';
 const APPROVE_VIEW = 'APPROVE_VIEW';
@@ -152,6 +152,14 @@ function PendingItem({ data, callback }: any) {
         }
       }
 
+      if (command === 'removescript') {
+        const script = await getScript(organisedParams.address);
+
+        if (script) {
+          organisedParams.script = script;
+        }
+      }
+
       setCommandDetails({
         command,
         ...organisedParams,
@@ -271,6 +279,15 @@ function PendingItem({ data, callback }: any) {
       )
     }
 
+    if (commandDetails?.command === 'vault') {
+      return (
+        <div>
+          <div>Running this command will return and expose your 24 word seed phrase to the
+            app that requested it. <strong>USE WITH CAUTION.</strong></div>
+        </div>
+      )
+    }
+
     if (commandDetails?.command === 'multisig' && commandDetails.action === 'list' && !commandDetails.id) {
       return (
         <div>
@@ -351,6 +368,144 @@ function PendingItem({ data, callback }: any) {
       )
     }
 
+    if (commandDetails?.command === 'mds') {
+      if (commandDetails.action === 'list') {
+        return (
+          <div>
+            <div>
+              This will return sensitive information including the password required for logging in to your MiniDapp System and list your installed MiniDapps
+            </div>
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'install' && commandDetails.file) {
+        return (
+          <div>
+            <div>
+              You are about to install the following MiniDapp: <strong>{commandDetails.file}</strong>
+            </div>
+            {(!commandDetails.trust || commandDetails.trust === 'read') && <div className="mt-2">The MiniDapp will be given <strong>READ</strong> only permission to your node and wallet (recommended).</div>}
+            {commandDetails.trust === 'write' && <div className="mt-2">The MiniDapp will be given <strong>WRITE</strong> permission to your node and wallet (not recommended).</div>}
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'update' && commandDetails.file) {
+        return (
+          <div>
+            <div>You are about to update the MiniDapp with uid: <strong>{commandDetails.uid}</strong>, with the following file: <strong>{commandDetails.file}</strong>.</div>
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'uninstall') {
+        return (
+          <div>
+            <div>You are about to uninstall the MiniDapp with uid: <strong>{commandDetails.uid}</strong>. This will remove all its saved contents and may affect your ability to access some or all of your assets.</div>
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'download') {
+        if (commandDetails.folder) {
+          return (
+            <div>
+              <div>You are about to download the MiniDapp with uid: <strong>{commandDetails.uid}</strong>. It will be saved in the following folder: <strong>{commandDetails.folder}</strong></div>
+            </div>
+          )
+        }
+
+        if (commandDetails.locationonly === 'true') {
+          return (
+            <div>
+              <div>You are about to display the location of the MiniDapp with uid: <strong>{commandDetails.uid}</strong>.</div>
+            </div>
+          )
+        }
+
+        return (
+          <div>
+            <div>You are about to download the MiniDapp with uid: <strong>{commandDetails.uid}</strong>. It will be saved locally in your base folder location.</div>
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'pending') {
+        return (
+          <div>
+            <div>You are about to list all Pending commands waiting to be accepted or denied.</div>
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'accept') {
+        return (
+          <div>
+            <div>You are about to accept the Pending command with uid: <strong>{commandDetails.uid}</strong>.</div>
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'deny') {
+        return (
+          <div>
+            <div>You are about to deny the Pending command with uid: <strong>{commandDetails.uid}</strong>.</div>
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'permission') {
+        return (
+          <div>
+            <div>You are about to change permission for the MiniDapp with uid <strong>{commandDetails.uid}</strong> to <strong>{commandDetails.trust === 'read' ? 'READ' : 'WRITE'}</strong>.</div>
+            {commandDetails.trust === 'read' && <div className="mt-2">The MiniDapp will be given <strong>READ</strong> only permission to your node and wallet (recommended).</div>}
+            {commandDetails.trust === 'write' && <div className="mt-2">The MiniDapp will be given <strong>WRITE</strong> permission to your node and wallet (not recommended).</div>}
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'publicmds') {
+        return (
+          <div>
+            <div>You are about to <strong>{commandDetails.enable === 'true' ? 'ENABLE' : 'DISABLE'}</strong> your Public MiniDapp system.</div>
+            {commandDetails.enable === 'true' && <div className="mt-2">You may only enable Public MDS if your node is fully configured as a Mega MMR node with the -megammr start up parameter.</div>}
+          </div>
+        )
+      }
+
+      return (
+        <div>
+          <div>This will return sensitive information including the password required for logging in to your MiniDapp System and list your installed MiniDapps</div>
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'seedrandom') {
+      return (
+        <div>
+          <div>You are about to generate a random value, based on your SEED and the following modifier: <strong>{commandDetails.modifier}</strong></div>
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'quit') {
+      if (commandDetails.compact === 'true') {
+        return (
+          <div>
+            <div>You are about to shutdown your node and compact the databases. Please
+              ensure you have a copy of your seed phrase and a backup of your node before
+              shutting down.</div>
+          </div>
+        )
+      }
+      return (
+        <div>
+          <div>You are about to shutdown your node. Please ensure you have a copy of your seed phrase and a backup of your node before shutting down.</div>
+        </div>
+      )
+    }
+
     if (commandDetails?.command === 'tokencreate') {
       return (
         <div>
@@ -380,6 +535,485 @@ function PendingItem({ data, callback }: any) {
           </div>
         </div>
       )
+    }
+
+    if (commandDetails?.command === 'backup') {
+      return (
+        <div>
+          <div>
+            <div>You are about to take a backup of this node.</div>
+            {(commandDetails.password || commandDetails.file || commandDetails.auto || commandDetails.maxhistory) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.password && <li>It will be encrypted with the password provided.</li>}
+                {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong>.</li>}
+                {commandDetails.auto === 'true' && <li>A non password protected backup of this node will be taken every 24 hours whilst the node is running. It will be saved to the base folder of this node. Any password or custom file name provided will be ignored.</li>}
+                {commandDetails.auto === 'false' && <li>Automatic backups will be disabled.</li>}
+                {commandDetails.maxhistory && <li>This backup will contain a maximum history of <strong>{commandDetails.maxhistory}</strong> of your transactions.</li>}
+              </ul>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'restore') {
+      return (
+        <div>
+          <div>
+            <div>You are about to restore the following backup file: <strong>{commandDetails.file}</strong>.</div>
+            {(commandDetails.password) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.password && <li>The password provided will be used to decrypt the backup.</li>}
+              </ul>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'restoresync') {
+      return (
+        <div>
+          <div>
+            <div>You are about to restore the following backup file: <strong>{commandDetails.file}</strong>.</div>
+            {(commandDetails.password || commandDetails.host || commandDetails.keyuses) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.password && <li>The password provided will be used to decrypt the backup.</li>}
+                {commandDetails.host && <li>Once restored, your node will attempt to sync to the latest block from the archive node at the following host: <strong>{commandDetails.host}</strong>. This will be skipped if your backup is less than 48 hours old.</li>}
+                {commandDetails.keyuses && <li>Your key uses value will be increased by <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since taking the backup.</li>}
+              </ul>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'rpc') {
+      return (
+        <div>
+          <div>
+            {commandDetails.enable === 'true' && <div>You are about to enable RPC on your node. This may expose your node to public access if not protected by a firewall. USE WITH CAUTION.</div>}
+            {commandDetails.enable === 'false' && <div>You are about to disable RPC on your node. If external applications are using RPC to communicate with your node, these will no longer function as expected.</div>}
+            {(commandDetails.ssl || commandDetails.password) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.ssl && <li>Self signed SSL will be enabled - you can use stunnel yourself.</li>}
+                {commandDetails.password && <li>Your RPC Basic Auth password used in headers will be set to the password provided - ONLY secure if used with SSL.</li>}
+              </ul>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'removescript') {
+      return (
+        <div>
+          <div>
+            <div>You are about to remove the following script from your node. Be careful, removing scripts which are relevant to you can result in losing access to some of your assets.</div>
+            <div className="mt-2">If you lose access to your assets as a result of removing this script, you will need to readd the script and resync your node.</div>
+            <div className="mt-2 break-all">Address: <strong>{commandDetails.address}</strong></div>
+            <div className="mt-2">
+              Script: {!commandDetails.script && <span className="text-red-500">Could not be retrieved</span>}
+              {commandDetails.script && (
+                <pre className="mt-2 border border-gray-800 text-[13px] rounded p-2 break-all">
+                  {commandDetails.script}
+                </pre>
+              )}
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'megammrsync') {
+      if (commandDetails.action === 'resync') {
+        return (
+          <div>
+            <div>You are about to resync your node from the host $host. Your transaction history will be wiped and wallet will be restored.</div>
+            <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
+            {(commandDetails.phrase || commandDetails.password || commandDetails.anyphrase || commandDetails.keys || commandDetails.keyuses || commandDetails.file) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
+                {commandDetails.anyphrase === 'true' && <li>A custom seed phrase will be allowed.</li>}
+                {commandDetails.anyphrase === 'false' && <li>A custom seed phrase will not be allowed.</li>}
+                {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
+                {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
+                {commandDetails.file && <li>The following backup file will be restored: <strong>{commandDetails.file}</strong>.</li>}
+                {commandDetails.password && <li>The password provided will be used to decrypt the backup.</li>}
+              </ul>
+            )}
+          </div>
+        );
+      }
+
+      return (
+        <div>You are about to show which addresses and public keys you would search for during a resync.</div>
+      )
+    }
+
+    if (commandDetails?.command === 'archive') {
+      if (commandDetails.action === 'integrity') {
+        return (
+          <div>You are about to check the integrity of your own archive data. This may take a while. If possible, it is recommended to run this directly from the Minima Terminal.</div>
+        );
+      }
+
+      if (commandDetails.action === 'inspect') {
+        return (
+          <div>You are about to inspect the following file: <strong>{commandDetails.file}</strong>. This may take a while. If possible, it is recommended to run this directly from the Minima Terminal.</div>
+        );
+      }
+
+      if (commandDetails.action === 'export') {
+        return (
+          <div>
+            <div>You are about to export your archive database to a .gzip file. It will be saved in the following file/location: $file. If no folder path has been defined, the file will be saved locally in your node’s base folder.</div>
+            <div className="mt-2">It is recommended to use the exportraw method instead, for improved performance.</div>
+          </div>
+        );
+      }
+
+      if (commandDetails.action === 'exportraw' && !commandDetails.file) {
+        return (
+          <div>
+            <div>You are about to export your archive database to a .dat file. The file will be saved locally in your node’s base folder.</div>
+          </div>
+        );
+      }
+
+      if (commandDetails.action === 'exportraw' && commandDetails.file) {
+        return (
+          <div>
+            <div>You are about to export your archive database to a .dat file. It will be saved in the following file/location: <strong>{commandDetails.file}</strong>.</div>
+            <div className="mt-2">If no folder path has been defined, the file will be saved locally in your node's base folder.</div>
+          </div>
+        );
+      }
+
+      if (commandDetails.action === 'resync') {
+        return (
+          <div>
+            <div>You are about to resync your node from the host <strong>{commandDetails.host}</strong>. This host should be an archive node and you must remain online for the duration of the syncing process. This will take a long time. If possible, perform a QuickSync instead.</div>
+            <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
+            {(commandDetails.anyphrase || commandDetails.phrase || commandDetails.keys || commandDetails.keyuses) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.anyphrase === 'true' && <li>A custom seed phrase will be allowed.</li>}
+                {commandDetails.anyphrase === 'false' && <li>A custom seed phrase will not be allowed.</li>}
+                {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
+                {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
+                {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
+              </ul>
+            )}
+          </div>
+        );
+      }
+
+      if (commandDetails.action === 'import') {
+        return (
+          <div>
+            <div>You are about to import and resync from the following archive file: <strong>{commandDetails.file}</strong>. Please ensure your node is set up as an archive node before proceeding. This will take a while. If possible, it is recommended to run this directly from the Minima Terminal.</div>
+            <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
+            {(commandDetails.anyphrase || commandDetails.phrase || commandDetails.keys || commandDetails.keyuses) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.anyphrase === 'true' && <li>A custom seed phrase will be allowed.</li>}
+                {commandDetails.anyphrase === 'false' && <li>A custom seed phrase will not be allowed.</li>}
+                {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
+                {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
+                {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
+              </ul>
+            )}
+          </div>
+        );
+      }
+
+      if (commandDetails.action === 'addresscheck') {
+        return (
+          <div>
+            <div>You are about to check your archive database for spent and unspent coins at the following wallet or script address: <strong>{commandDetails.address}</strong>.</div>
+            {(commandDetails.statecheck || commandDetails.logs || commandDetails.maxexport) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.statecheck && <li>The following data will be searched for in the state variables: <strong>{commandDetails.statecheck}</strong></li>}
+                {commandDetails.logs === 'true' && <li>Detailed logs will be provided</li>}
+                {commandDetails.logs === 'false' && <li>Detailed logs will not be provided</li>}
+                {commandDetails.maxexport && <li><strong>{commandDetails.maxexport}</strong> blocks will be exported.</li>}
+              </ul>
+            )}
+          </div>
+        );
+      }
+
+      return (
+        <div>You are about to show which addresses and public keys you would search for during a resync.</div>
+      )
+    }
+
+    if (commandDetails?.command === 'mysql') {
+      if (commandDetails.action === 'info') {
+        return (
+          <div>
+            {(commandDetails.host || commandDetails.database || commandDetails.user) ? (
+              <div>
+                <div>You are about to connect to the following MySQL database:</div>
+                <ul className="mt-2 ml-4 list-disc text-[13px]">
+                  {commandDetails.host && <li>host: <strong>{commandDetails.host}</strong></li>}
+                  {commandDetails.database && <li>database: <strong>{commandDetails.database}</strong></li>}
+                  {commandDetails.user && <li>user: <strong>{commandDetails.user}</strong></li>}
+                </ul>
+              </div>
+            ) :  (
+              <div>You are about to connect to the MySQL database.</div>
+            )}
+            {!commandDetails.action && (
+              <div className="mt-2 text-xs">Connection details and the block count in both the node's archive and the MySQL database will be returned.</div>
+            )}
+            {(commandDetails.readonly) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.readonly === 'true' && <li>This MySQL connection will be in read-only mode.</li>}
+                {commandDetails.readonly === 'false' && <li>This MySQL connection will be in write mode.</li>}
+              </ul>
+            )}
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'integrity') {
+        return (
+          <div>Check the block order is correct in the MySQL db.</div>
+        )
+      }
+
+      if (commandDetails.action === 'update') {
+        return (
+          <div>The MySQL database will be synced with the node’s archive database.</div>
+        )
+      }
+
+      if (commandDetails.action === 'addresscheck') {
+        return (
+          <div>The history of all spent and unspent coins from the following address will be checked: <strong>{commandDetails.address}</strong></div>
+        )
+      }
+
+      if (commandDetails.action === 'setlogin') {
+        return (
+          <div>The MySQL login details will be saved so you don’t need to provide them in every time.</div>
+        )
+      }
+
+      if (commandDetails.action === 'clearlogin') {
+        return (
+          <div>The saved MySQL login details will be cleared.</div>
+        )
+      }
+
+      if (commandDetails.action === 'findtxpow') {
+        return (
+          <div>The following TxPoW will be searched for in the MySQL database: <strong>{commandDetails.txpowid}</strong></div>
+        )
+      }
+
+      if (commandDetails.action === 'resync') {
+        return (
+          <div>
+            <div>Your node will be re-synced from the MySQL database. Your transaction history will be wiped and wallet will be restored.</div>
+            <div>It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
+            <div>This will take a long time so it is recommended to perform this directly from the Minima Terminal.</div>
+            <div>The node will shutdown once complete, so you must restart it.</div>
+            {(commandDetails.phrase || commandDetails.keys) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
+                {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
+                {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
+              </ul>
+            )}
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'wipe') {
+        return (
+          <div>Be careful. The MySQL database will be wiped.</div>
+        )
+      }
+
+      if (commandDetails.action === 'h2export') {
+        return (
+          <div>
+            <div>The MySQL archive database will be exported to a .gzip file. This can be used to resync a node. Consider using the raw export option for improved performance.</div>
+            {(commandDetails.file) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong></li>}
+              </ul>
+            )}
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'h2import') {
+        return (
+          <div>
+            <div>The following file will be imported to the MySQL archive database: <strong>{commandDetails.file}</strong>.</div>
+            <div className="mt-2"> This must be a valid .gzip file. Consider using the raw import option for improved performance.</div>
+          </div>
+        )
+      }
+
+
+      if (commandDetails.action === 'rawexport') {
+        return (
+          <div>
+            <div>The MySQL archive database will be exported to a raw .dat file. This can be used to resync a node.</div>
+            {(commandDetails.file) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong></li>}
+              </ul>
+            )}
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'rawimport') {
+        return (
+          <div>
+            The following file will be imported to the MySQL archive database: <strong>{commandDetails.file}</strong>. This must be a valid .dat file.
+          </div>
+        )
+      }
+
+      if ((commandDetails.host || commandDetails.database || commandDetails.user)) {
+        return (
+          <div>
+            <div>You are about to connect to the following MySQL database:</div>
+            <ul className="mt-2 ml-4 list-disc text-[13px]">
+              {commandDetails.host && <li>host: <strong>{commandDetails.host}</strong></li>}
+              {commandDetails.database && <li>database: <strong>{commandDetails.database}</strong></li>}
+              {commandDetails.user && <li>user: <strong>{commandDetails.user}</strong></li>}
+            </ul>
+            {!commandDetails.action && (
+              <div className="mt-2 text-xs">Connection details and the block count in both the node's archive and the MySQL database will be returned.</div>
+            )}
+          </div>
+        )
+      }
+    }
+
+
+    if (commandDetails?.command === 'mysqlcoins') {
+      if (commandDetails.action === 'info') {
+        return (
+          <div>
+            {(commandDetails.host || commandDetails.database || commandDetails.user) ? (
+              <div>
+                <div>You are about to connect to the following MySQL database:</div>
+                <ul className="mt-2 ml-4 list-disc text-[13px]">
+                  {commandDetails.host && <li>host: <strong>{commandDetails.host}</strong></li>}
+                  {commandDetails.database && <li>database: <strong>{commandDetails.database}</strong></li>}
+                  {commandDetails.user && <li>user: <strong>{commandDetails.user}</strong></li>}
+                </ul>
+              </div>
+            ) :  (
+              <div>You are about to connect to the MySQL database.</div>
+            )}
+            {!commandDetails.action && (
+              <div className="mt-2 text-xs">Details about the last synced block will be returned.</div>
+            )}
+            {(commandDetails.readonly) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.readonly === 'true' && <li>This MySQL connection will be in read-only mode.</li>}
+                {commandDetails.readonly === 'false' && <li>This MySQL connection will be in write mode.</li>}
+              </ul>
+            )}
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'wipe') {
+        return (
+          <div>Be careful. The MySQL coins database will be wiped.</div>
+        )
+      }
+
+      if (commandDetails.action === 'update' && !commandDetails.maxcoins) {
+        return (
+          <div>
+            <div>The MySQL coins database will be synced with the node's coin database. This can take a long time - consider limiting the number of coins to sync at once using the <strong><i>maxcoins</i></strong> parameter.</div>
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'update' && commandDetails.maxcoins) {
+        return (
+          <div>
+            The MySQL coins database will be synced with the node's coin database. A maximum of <strong>{commandDetails.maxcoins}</strong> coins will be synced.
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'search' && commandDetails.address) {
+        return (
+          <div>
+             <div>A search will be performed on the coins at the following address: <strong>{commandDetails.address}</strong>.</div>
+             {(commandDetails.spent) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.spent === 'true' && <li>Only spent coins will be returned.</li>}
+                {commandDetails.spent === 'false' && <li>Only unspent coins will be returned.</li>}
+              </ul>
+            )}
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'search' && commandDetails.where) {
+        return (
+          <div>
+             <div>A search will be performed on the coins with the following SQL WHERE statement:</div>
+             <div className="mt-2">
+                <pre className="mt-2 border border-gray-800 text-[13px] rounded p-2 break-all">
+                  {commandDetails.where}
+                </pre>
+            </div>
+             {(commandDetails.limit) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.limit && <li>The number of rows returned will be limited to <strong>{commandDetails.limit}</strong>.</li>}
+              </ul>
+            )}
+          </div>
+        )
+      }
+
+      if (commandDetails.action === 'search' && commandDetails.query) {
+        return (
+          <div>
+             <div>A search will be performed on the coins with the following SQL query:</div>
+             <div className="mt-2">
+                <pre className="mt-2 border border-gray-800 text-[13px] rounded p-2 break-all">
+                  {commandDetails.query}
+                </pre>
+            </div>
+             {(commandDetails.limit) && (
+              <ul className="mt-2 ml-4 list-disc text-[13px]">
+                {commandDetails.limit && <li>The number of rows returned will be limited to: <strong>{commandDetails.limit}</strong>.</li>}
+              </ul>
+            )}
+          </div>
+        )
+      }
+
+      if ((commandDetails.host || commandDetails.database || commandDetails.user)) {
+        return (
+          <div>
+            <div>You are about to connect to the following MySQL database:</div>
+            <ul className="mt-2 ml-4 list-disc text-[13px]">
+              {commandDetails.host && <li>host: <strong>{commandDetails.host}</strong></li>}
+              {commandDetails.database && <li>database: <strong>{commandDetails.database}</strong></li>}
+              {commandDetails.user && <li>user: <strong>{commandDetails.user}</strong></li>}
+            </ul>
+            {!commandDetails.action && (
+              <div className="mt-2 text-xs">Details about the last synced block will be returned.</div>
+            )}
+          </div>
+        )
+      }
     }
 
     return null;
@@ -498,7 +1132,7 @@ function PendingItem({ data, callback }: any) {
                 <div className="bg-core-black-contrast text-sm text-white text-left mt-4 pt-2.5 pb-2 px-2 rounded-t">
                   <div className="grid grid-cols-2">
                     <div className="col-span-1 flex items-center pl-2">
-                      Command
+                      Info
                     </div>
                     <div className="col-span-1 flex justify-end">
                       {renderShowMore() && (
