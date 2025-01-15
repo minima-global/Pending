@@ -177,10 +177,43 @@ function PendingItem({ data, callback }: any) {
     })();
   }, [data]);
 
-  const calc = (amount: number, decimals: number) => {
+  const calculateMinimaWhenCreatingToken = (amount: string, decimals: string) => {
+    const finalisedAmount = amount.replace(/^"|"$/g, '');
+    const finalisedDecimals = decimals.replace(/^"|"$/g, '');
     const base = new Decimal(0.00000000000000000000000000000000000000000001);
-    const result = base.mul((10 ** Number(decimals) * amount));
+    const result = base.mul((10 ** Number(finalisedDecimals) * Number(finalisedAmount)));
     return result.toString();
+  }
+
+  // if it fails to parse name to json, then just render the name as it is a string
+  const renderTokenName = (name: string) => {
+    try {
+      const nameObject: Record<string, string> = JSON.parse(name.replace(/^"|"$/g, ''));
+
+      return (
+        <>
+          {Object.entries(nameObject).map(([key, value]) => {
+            if (!value) {
+              return null;
+            }
+
+            return <li key={key}><span className="capitalize">{key}</span>: <strong>{value}</strong></li>;
+          })}
+        </>
+      )
+    } catch (e) {
+      return <li>Name: <strong>{name.toString()}</strong></li>;
+    }
+  }
+
+  const isNameJsonAndHasValidWebValidateValue = (name: string) => {
+    try {
+      const nameObject: Record<string, string> = JSON.parse(name.replace(/^"|"$/g, ''));
+
+      return !!nameObject.webvalidate;
+    } catch (e) {
+      return false;
+    }
   }
 
   const renderMessage = () => {
@@ -529,13 +562,13 @@ function PendingItem({ data, callback }: any) {
           <div>
             <div className="mb-2">You are about to mint a new {commandDetails.decimals === '0' ? 'NFT' : 'token'} with the following attributes:</div>
             <ul className="list-disc list-inside">
-              <li>Name: <strong>{commandDetails.name}</strong></li>
+              {renderTokenName(commandDetails.name)}
               <li>Supply: <strong>{commandDetails.amount}</strong></li>
               {commandDetails.decimals && commandDetails.decimals !== '0' && <li>Decimal places: <strong>{commandDetails.decimals}</strong></li>}
               {commandDetails.script && <li>Script: <strong>{commandDetails.script}</strong></li>}
-              {commandDetails.webvalidate && <li>Web validation URL: <strong>{commandDetails.webvalidate}</strong></li>}
+              {commandDetails.webvalidate && !isNameJsonAndHasValidWebValidateValue(commandDetails.name) && <li>Web validation URL: <strong>{commandDetails.webvalidate}</strong></li>}
             </ul>
-            <div className="mt-2">This transaction will use <strong>{calc(commandDetails.amount, commandDetails.decimals)}</strong> Minima{commandDetails.burn ? <span> and burn <strong>{commandDetails.burn}</strong> Minima.</span> : '.'}</div>
+            <div className="mt-2">This transaction will use <strong>{calculateMinimaWhenCreatingToken(commandDetails.amount, commandDetails.decimals)}</strong> Minima{commandDetails.burn ? <span> and burn <strong>{commandDetails.burn}</strong> Minima.</span> : '.'}</div>
           </div>
         </div>
       )
