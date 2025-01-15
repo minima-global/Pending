@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.2.0] - 13 January 25
+
+- Added descriptions for pending MDS actions
+
 ##### [1.1.1] - 12 September 23
 
 - updated mds.js

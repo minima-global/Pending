@@ -4,12 +4,15 @@ import Panel from '../../components/UI/Panel';
 import Button from '../../components/UI/Button';
 import VaultLockModal from '../VaultLockModal';
 import { getScript, tokenInfo } from '../../lib';
+import Decimal from 'decimal.js';
 
 const DEFAULT_VIEW = 'DEFAULT_VIEW';
 const APPROVE_VIEW = 'APPROVE_VIEW';
 const DENY_VIEW = 'DENY_VIEW';
 const APPROVE_RESULTS_VIEW = 'APPROVE_RESULTS_VIEW';
 const DENY_RESULTS_VIEW = 'DENY_RESULTS_VIEW';
+
+Decimal.set({ precision: 44 });
 
 function PendingItem({ data, callback }: any) {
   const { nodeLocked, accept, decline, refresh, dismissHelp, startInterval, stopInterval, setDisplayVaultIsLocked } =
@@ -42,6 +45,7 @@ function PendingItem({ data, callback }: any) {
     dismissHelp();
     setView(APPROVE_VIEW);
   };
+
   const showConfirmDenyView = () => {
     dismissHelp();
     setView(DENY_VIEW);
@@ -128,6 +132,8 @@ function PendingItem({ data, callback }: any) {
 
   useEffect(() => {
     (async () => {
+      setCommandDetails(null);
+
       const organisedParams: Record<string, string> = {};
       const command = data.command ? data.command.split(' ')[0] : false;
       data.command && data.command.split(' ').map((element, index) => {
@@ -136,16 +142,20 @@ function PendingItem({ data, callback }: any) {
         }
       });
 
-      if (command === 'send') {
+      if (command === 'send' || command === 'sendpoll' || command === 'multisig') {
         if (organisedParams.tokenid) {
           const token = await tokenInfo(organisedParams.tokenid);
 
-          if (typeof token.name === 'string') {
+          if (token && typeof token.name === 'string') {
             organisedParams.tokenname = token.name;
           }
 
-          if (typeof token.token === 'object') {
+          if (token && typeof token.token === 'object') {
             organisedParams.tokenname = token.token.name;
+          }
+
+          if (!token) {
+            organisedParams.tokenname = organisedParams.tokenid;
           }
         } else {
           organisedParams.tokenname = 'Minima';
@@ -167,25 +177,31 @@ function PendingItem({ data, callback }: any) {
     })();
   }, [data]);
 
+  const calc = (amount: number, decimals: number) => {
+    const base = new Decimal(0.00000000000000000000000000000000000000000001);
+    const result = base.mul((10 ** Number(decimals) * amount));
+    return result.toString();
+  }
+
   const renderMessage = () => {
     if (commandDetails?.command === 'send') {
       return (
         <div>
-          {!commandDetails.multi && <div>You are about to send <strong>{commandDetails.amount}</strong> <strong>{commandDetails.tokenname}</strong> to <strong>{commandDetails.address}</strong>.</div>}
-          {commandDetails.multi && <div>
-            You are about to send to multiple addresses:
-            <ul className="list-disc ml-4 text-gray-400 break-all">
-              {JSON.parse(commandDetails.multi).map((multi: string) => {
+          {!commandDetails.multi && <div className="break-all">You are about to send <strong>{commandDetails.amount}</strong> <strong>{commandDetails.tokenname}</strong> to <strong>{commandDetails.address}</strong>.</div>}
+          {commandDetails.multi && <div className="break-words">
+            You are about to send <strong>{commandDetails.tokenname}</strong> to multiple addresses:
+            <ul className="mt-2 list-disc ml-4 text-gray-400 break-all">
+              {JSON.parse(commandDetails.multi).map((multi: string, index: number) => {
                 const address = multi.split(':')[0];
                 const amount = multi.split(':')[1];
                 return (
-                  <li><strong>{amount}</strong> {commandDetails.tokenname} to <strong>{address}</strong></li>
+                  <li key={multi + index}><strong>{amount}</strong> {commandDetails.tokenname} to <strong>{address}</strong></li>
                 )
               })}
             </ul>
           </div>}
           {commandDetails.burn && <div className="mt-2">This transaction will burn <strong>{commandDetails.burn}</strong> Minima.</div>}
-          <div className="mt-2">Only accept if you wish to proceed.</div>
+          <div className="mt-2">Only approve if you wish to proceed.</div>
         </div>
       )
     }
@@ -193,21 +209,21 @@ function PendingItem({ data, callback }: any) {
     if (commandDetails?.command === 'sendpoll' && commandDetails.action === 'add') {
       return (
         <div>
-          {!commandDetails.multi && <div>You are about to send <strong>{commandDetails.amount}</strong> <strong>{commandDetails.tokenname}</strong> to <strong>{commandDetails.address}</strong>.</div>}
-          {commandDetails.multi && <div>
-            You are about to send to multiple addresses:
-            <ul className="list-disc ml-4 text-gray-400 break-all">
-              {JSON.parse(commandDetails.multi).map((multi: string) => {
+          {!commandDetails.multi && <div className="break-all">You are about to send <strong>{commandDetails.tokenname}</strong> to <strong>{commandDetails.address}</strong>.</div>}
+          {commandDetails.multi && <div className="break-words">
+            You are about to send <strong>{commandDetails.tokenname}</strong> to multiple addresses:
+            <ul className="mt-2 list-disc ml-4 text-gray-400 break-all">
+              {JSON.parse(commandDetails.multi).map((multi: string, index: number) => {
                 const address = multi.split(':')[0];
                 const amount = multi.split(':')[1];
                 return (
-                  <li><strong>{amount}</strong> {commandDetails.tokenname} to <strong>{address}</strong></li>
+                  <li key={multi + index}><strong>{amount}</strong> to <strong>{address}</strong></li>
                 )
               })}
             </ul>
           </div>}
           {commandDetails.burn && <div className="mt-2">This transaction will burn <strong>{commandDetails.burn}</strong> Minima.</div>}
-          <div className="mt-2">If you do not currently have funds available, this transaction will be reattempted every 30 seconds. Only accept if you wish to proceed.</div>
+          <div className="mt-2">If you do not currently have funds available, this transaction will be reattempted every 30 seconds. Only approve if you wish to proceed.</div>
         </div>
       )
     }
@@ -231,7 +247,7 @@ function PendingItem({ data, callback }: any) {
     if (commandDetails?.command === 'cointrack' && commandDetails.enable === 'true') {
       return (
         <div>
-          Your node will monitor when the coin with coin ID <strong>{commandDetails.coinid}</strong> moves on-chain.
+          The coin with coin ID <strong>{commandDetails.coinid}</strong> will be added to your node. Your node will monitor when this coin moves on-chain.
         </div>
       )
     }
@@ -240,7 +256,7 @@ function PendingItem({ data, callback }: any) {
     if (commandDetails?.command === 'cointrack' && commandDetails.enable === 'false') {
       return (
         <div>
-          Your node will no longer monitor when the coin with coin ID <strong>{commandDetails.coinid}</strong> moves on-chain.
+          The coin with coin ID <strong>{commandDetails.coinid}</strong> will be removed from your node. Your node will not monitor when this coin moves on-chain.
         </div>
       )
     }
@@ -312,7 +328,7 @@ function PendingItem({ data, callback }: any) {
       return (
         <div>
           <div>
-            <div>You are about to create an unsigned transaction file to spend a <strong>{commandDetails.amount}</strong> from the multi-signature coin with ID: <strong>{commandDetails.id}</strong>.</div>
+            <div>You are about to create an unsigned transaction file to spend <strong>{commandDetails.amount}</strong> <strong>{commandDetails.tokenname}</strong> from the multi-signature coin with ID: <strong>{commandDetails.id}</strong>.</div>
           </div>
         </div>
       )
@@ -322,7 +338,7 @@ function PendingItem({ data, callback }: any) {
       return (
         <div>
           <div>
-            <div>You are about to create an unsigned transaction file to spend a <strong>{commandDetails.amount}</strong> from the multi-signature coin with coin id: <strong>{commandDetails.coinid}</strong>.</div>
+            <div>You are about to create an unsigned transaction file to spend <strong>{commandDetails.amount}</strong> <strong>{commandDetails.tokenname}</strong> from the multi-signature coin with the coin id: <strong>{commandDetails.coinid}</strong>.</div>
           </div>
         </div>
       )
@@ -362,7 +378,8 @@ function PendingItem({ data, callback }: any) {
       return (
         <div>
           <div>
-            <div>You are about to consolidate multiple <strong>{commandDetails.tokenid}</strong> coins into one by sending them back to yourself. This requires at least 3 coins as inputs. This transaction will burn <strong>{commandDetails.burn}</strong> Minima.</div>
+            <div>You are about to consolidate multiple coins with tokenid: <strong>{commandDetails.tokenid}</strong> by sending them back to yourself. This requires at least 3 coins as inputs.</div>
+            {commandDetails.burn && <div className="mt-2">This transaction will burn <strong>{commandDetails.burn}</strong> Minima.</div>}
           </div>
         </div>
       )
@@ -373,7 +390,7 @@ function PendingItem({ data, callback }: any) {
         return (
           <div>
             <div>
-              This will return sensitive information including the password required for logging in to your MiniDapp System and list your installed MiniDapps
+              This will return sensitive information including the password required for logging in to your MiniDapp System and list your installed MiniDapps.
             </div>
           </div>
         )
@@ -426,7 +443,7 @@ function PendingItem({ data, callback }: any) {
 
         return (
           <div>
-            <div>You are about to download the MiniDapp with uid: <strong>{commandDetails.uid}</strong>. It will be saved locally in your base folder location.</div>
+            <div>You are about to download the MiniDapp with uid: <strong>{commandDetails.uid}</strong>. It will be saved locally in your node's base folder location.</div>
           </div>
         )
       }
@@ -442,7 +459,7 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'accept') {
         return (
           <div>
-            <div>You are about to accept the Pending command with uid: <strong>{commandDetails.uid}</strong>.</div>
+            <div>You are about to approve the Pending command with uid: <strong>{commandDetails.uid}</strong>.</div>
           </div>
         )
       }
@@ -458,7 +475,7 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'permission') {
         return (
           <div>
-            <div>You are about to change permission for the MiniDapp with uid <strong>{commandDetails.uid}</strong> to <strong>{commandDetails.trust === 'read' ? 'READ' : 'WRITE'}</strong>.</div>
+            <div>You are about to change the permission for the MiniDapp with uid <strong>{commandDetails.uid}</strong> to <strong>{commandDetails.trust === 'read' ? 'READ' : 'WRITE'}</strong>.</div>
             {commandDetails.trust === 'read' && <div className="mt-2">The MiniDapp will be given <strong>READ</strong> only permission to your node and wallet (recommended).</div>}
             {commandDetails.trust === 'write' && <div className="mt-2">The MiniDapp will be given <strong>WRITE</strong> permission to your node and wallet (not recommended).</div>}
           </div>
@@ -484,7 +501,7 @@ function PendingItem({ data, callback }: any) {
     if (commandDetails?.command === 'seedrandom') {
       return (
         <div>
-          <div>You are about to generate a random value, based on your SEED and the following modifier: <strong>{commandDetails.modifier}</strong></div>
+          <div>You are about to generate a random value, based on your seed and the following modifier: <strong>{commandDetails.modifier}</strong></div>
         </div>
       )
     }
@@ -510,7 +527,7 @@ function PendingItem({ data, callback }: any) {
       return (
         <div>
           <div>
-            <div className="mb-2">You are about to mint a new NFT with the following attributes:</div>
+            <div className="mb-2">You are about to mint a new {commandDetails.decimals === '0' ? 'NFT' : 'token'} with the following attributes:</div>
             <ul className="list-disc list-inside">
               <li>Name: <strong>{commandDetails.name}</strong></li>
               <li>Supply: <strong>{commandDetails.amount}</strong></li>
@@ -518,6 +535,7 @@ function PendingItem({ data, callback }: any) {
               {commandDetails.script && <li>Script: <strong>{commandDetails.script}</strong></li>}
               {commandDetails.webvalidate && <li>Web validation URL: <strong>{commandDetails.webvalidate}</strong></li>}
             </ul>
+            <div className="mt-2">This transaction will use <strong>{calc(commandDetails.amount, commandDetails.decimals)}</strong> Minima{commandDetails.burn ? <span> and burn <strong>{commandDetails.burn}</strong> Minima.</span> : '.'}</div>
           </div>
         </div>
       )
@@ -542,15 +560,14 @@ function PendingItem({ data, callback }: any) {
         <div>
           <div>
             <div>You are about to take a backup of this node.</div>
-            {(commandDetails.password || commandDetails.file || commandDetails.auto || commandDetails.maxhistory) && (
-              <ul className="mt-2 ml-4 list-disc text-[13px]">
-                {commandDetails.password && <li>It will be encrypted with the password provided.</li>}
-                {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong>.</li>}
-                {commandDetails.auto === 'true' && <li>A non password protected backup of this node will be taken every 24 hours whilst the node is running. It will be saved to the base folder of this node. Any password or custom file name provided will be ignored.</li>}
-                {commandDetails.auto === 'false' && <li>Automatic backups will be disabled.</li>}
-                {commandDetails.maxhistory && <li>This backup will contain a maximum history of <strong>{commandDetails.maxhistory}</strong> of your transactions.</li>}
-              </ul>
-            )}
+            <ul className="mt-2 ml-4 list-disc text-[13px]">
+              {commandDetails.password && <li>It will be encrypted with the password provided.</li>}
+              {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong>.</li>}
+              {!commandDetails.file && <li>It will be saved in your node's base folder. </li>}
+              {commandDetails.auto === 'true' && <li>A non password protected backup of this node will be taken every 24 hours whilst the node is running. It will be saved to the base folder of this node. Any password or custom file name provided will be ignored.</li>}
+              {commandDetails.auto === 'false' && <li>Automatic backups will be disabled.</li>}
+              {commandDetails.maxhistory && <li>This backup will contain a maximum history of <strong>{commandDetails.maxhistory}</strong> of your transactions.</li>}
+            </ul>
           </div>
         </div>
       )
@@ -610,7 +627,7 @@ function PendingItem({ data, callback }: any) {
         <div>
           <div>
             <div>You are about to remove the following script from your node. Be careful, removing scripts which are relevant to you can result in losing access to some of your assets.</div>
-            <div className="mt-2">If you lose access to your assets as a result of removing this script, you will need to readd the script and resync your node.</div>
+            <div className="mt-2">If you lose access to your assets as a result of removing this script, you will need to re-add the script and resync your node.</div>
             <div className="mt-2 break-all">Address: <strong>{commandDetails.address}</strong></div>
             <div className="mt-2">
               Script: {!commandDetails.script && <span className="text-red-500">Could not be retrieved</span>}
@@ -629,19 +646,8 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'resync') {
         return (
           <div>
-            <div>You are about to resync your node from the host $host. Your transaction history will be wiped and wallet will be restored.</div>
+            <div>You are about to resync your node from the host <strong>{commandDetails.host}</strong>. Your transaction history will be wiped and wallet will be restored.</div>
             <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
-            {(commandDetails.phrase || commandDetails.password || commandDetails.anyphrase || commandDetails.keys || commandDetails.keyuses || commandDetails.file) && (
-              <ul className="mt-2 ml-4 list-disc text-[13px]">
-                {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
-                {commandDetails.anyphrase === 'true' && <li>A custom seed phrase will be allowed.</li>}
-                {commandDetails.anyphrase === 'false' && <li>A custom seed phrase will not be allowed.</li>}
-                {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
-                {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
-                {commandDetails.file && <li>The following backup file will be restored: <strong>{commandDetails.file}</strong>.</li>}
-                {commandDetails.password && <li>The password provided will be used to decrypt the backup.</li>}
-              </ul>
-            )}
           </div>
         );
       }
@@ -667,8 +673,9 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'export') {
         return (
           <div>
-            <div>You are about to export your archive database to a .gzip file. It will be saved in the following file/location: $file. If no folder path has been defined, the file will be saved locally in your node’s base folder.</div>
+            <div>You are about to export your archive database to a .gzip file. {commandDetails.file ? <div>It will be saved in the following file/location: <strong>{commandDetails.file}</strong>.</div> : <div>It will be saved in your node's base folder</div>}</div>
             <div className="mt-2">It is recommended to use the exportraw method instead, for improved performance.</div>
+            <div className="mt-2">This may take a while. If possible, it is recommended to run this directly from the Minima Terminal.</div>
           </div>
         );
       }
@@ -676,7 +683,8 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'exportraw' && !commandDetails.file) {
         return (
           <div>
-            <div>You are about to export your archive database to a .dat file. The file will be saved locally in your node’s base folder.</div>
+            <div>You are about to export your archive database to a .dat file. The file will be saved locally in your node's base folder.</div>
+            <div className="mt-2">This may take a while. If possible, it is recommended to run this directly from the Minima Terminal.</div>
           </div>
         );
       }
@@ -693,17 +701,8 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'resync') {
         return (
           <div>
-            <div>You are about to resync your node from the host <strong>{commandDetails.host}</strong>. This host should be an archive node and you must remain online for the duration of the syncing process. This will take a long time. If possible, perform a QuickSync instead.</div>
+            <div>You are about to {commandDetails.phrase ? 'wipe and restore' : 're-sync'} your node from the host <strong>{commandDetails.host}</strong>. This host should be an archive node and you must remain online for the duration of the syncing process. This will take a long time. If possible, perform a QuickSync instead.</div>
             <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
-            {(commandDetails.anyphrase || commandDetails.phrase || commandDetails.keys || commandDetails.keyuses) && (
-              <ul className="mt-2 ml-4 list-disc text-[13px]">
-                {commandDetails.anyphrase === 'true' && <li>A custom seed phrase will be allowed.</li>}
-                {commandDetails.anyphrase === 'false' && <li>A custom seed phrase will not be allowed.</li>}
-                {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
-                {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
-                {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
-              </ul>
-            )}
           </div>
         );
       }
@@ -713,15 +712,6 @@ function PendingItem({ data, callback }: any) {
           <div>
             <div>You are about to import and resync from the following archive file: <strong>{commandDetails.file}</strong>. Please ensure your node is set up as an archive node before proceeding. This will take a while. If possible, it is recommended to run this directly from the Minima Terminal.</div>
             <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
-            {(commandDetails.anyphrase || commandDetails.phrase || commandDetails.keys || commandDetails.keyuses) && (
-              <ul className="mt-2 ml-4 list-disc text-[13px]">
-                {commandDetails.anyphrase === 'true' && <li>A custom seed phrase will be allowed.</li>}
-                {commandDetails.anyphrase === 'false' && <li>A custom seed phrase will not be allowed.</li>}
-                {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
-                {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
-                {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
-              </ul>
-            )}
           </div>
         );
       }
@@ -730,14 +720,6 @@ function PendingItem({ data, callback }: any) {
         return (
           <div>
             <div>You are about to check your archive database for spent and unspent coins at the following wallet or script address: <strong>{commandDetails.address}</strong>.</div>
-            {(commandDetails.statecheck || commandDetails.logs || commandDetails.maxexport) && (
-              <ul className="mt-2 ml-4 list-disc text-[13px]">
-                {commandDetails.statecheck && <li>The following data will be searched for in the state variables: <strong>{commandDetails.statecheck}</strong></li>}
-                {commandDetails.logs === 'true' && <li>Detailed logs will be provided</li>}
-                {commandDetails.logs === 'false' && <li>Detailed logs will not be provided</li>}
-                {commandDetails.maxexport && <li><strong>{commandDetails.maxexport}</strong> blocks will be exported.</li>}
-              </ul>
-            )}
           </div>
         );
       }
@@ -778,7 +760,13 @@ function PendingItem({ data, callback }: any) {
 
       if (commandDetails.action === 'integrity') {
         return (
-          <div>Check the block order is correct in the MySQL db.</div>
+          <div>This command will check the block order is correct in the MySQL db.</div>
+        )
+      }
+
+      if (commandDetails.action === 'autobackup') {
+        return (
+          <div>The node’s archive data will be automatically backed up to the MySQL database. If your node is using the <strong>-mysqlalltxpow</strong> startup parameter, all transaction will also be backed up to MySQL.</div>
         )
       }
 
@@ -790,13 +778,13 @@ function PendingItem({ data, callback }: any) {
 
       if (commandDetails.action === 'addresscheck') {
         return (
-          <div>The history of all spent and unspent coins from the following address will be checked: <strong>{commandDetails.address}</strong></div>
+          <div>The history of all spent and unspent coins from the following address: <strong>{commandDetails.address}</strong>, will be checked.</div>
         )
       }
 
       if (commandDetails.action === 'setlogin') {
         return (
-          <div>The MySQL login details will be saved so you don’t need to provide them in every time.</div>
+          <div>The MySQL login details will be saved so you don’t need to provide them every time you use a MySQL commandso you don’t need to provide them every time you use a MySQL command.</div>
         )
       }
 
@@ -815,17 +803,10 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'resync') {
         return (
           <div>
-            <div>Your node will be re-synced from the MySQL database. Your transaction history will be wiped and wallet will be restored.</div>
-            <div>It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
-            <div>This will take a long time so it is recommended to perform this directly from the Minima Terminal.</div>
-            <div>The node will shutdown once complete, so you must restart it.</div>
-            {(commandDetails.phrase || commandDetails.keys) && (
-              <ul className="mt-2 ml-4 list-disc text-[13px]">
-                {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
-                {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
-                {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
-              </ul>
-            )}
+            <div>Your node will be {commandDetails.phrase ? 'wipe and restore' : 're-sync'} from the MySQL database. Your transaction history will be wiped and wallet will be restored.</div>
+            <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
+            <div className="mt-2">This will take a long time so it is recommended to perform this directly from the Minima Terminal.</div>
+            <div className="mt-2">The node will shutdown once complete, so you must restart it.</div>
           </div>
         )
       }
@@ -863,11 +844,10 @@ function PendingItem({ data, callback }: any) {
         return (
           <div>
             <div>The MySQL archive database will be exported to a raw .dat file. This can be used to resync a node.</div>
-            {(commandDetails.file) && (
-              <ul className="mt-2 ml-4 list-disc text-[13px]">
+            <ul className="mt-2 ml-4 list-disc text-[13px]">
                 {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong></li>}
-              </ul>
-            )}
+                {!commandDetails.file && <li>This will be saved in your node's base folder.</li>}
+            </ul>
           </div>
         )
       }
@@ -875,7 +855,8 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'rawimport') {
         return (
           <div>
-            The following file will be imported to the MySQL archive database: <strong>{commandDetails.file}</strong>. This must be a valid .dat file.
+            <div>The following file will be imported to the MySQL archive database: <strong>{commandDetails.file}</strong>.</div> 
+            <div className="mt-2">This must be a valid <strong>.dat</strong> file.</div>
           </div>
         )
       }
@@ -890,7 +871,7 @@ function PendingItem({ data, callback }: any) {
               {commandDetails.user && <li>user: <strong>{commandDetails.user}</strong></li>}
             </ul>
             {!commandDetails.action && (
-              <div className="mt-2 text-xs">Connection details and the block count in both the node's archive and the MySQL database will be returned.</div>
+              <div className="mt-2">Connection details and the block count in both the node's archive and the MySQL database will be returned.</div>
             )}
           </div>
         )
@@ -904,7 +885,7 @@ function PendingItem({ data, callback }: any) {
           <div>
             {(commandDetails.host || commandDetails.database || commandDetails.user) ? (
               <div>
-                <div>You are about to connect to the following MySQL database:</div>
+                <div>You are about to connect to the following MySQL coins database:</div>
                 <ul className="mt-2 ml-4 list-disc text-[13px]">
                   {commandDetails.host && <li>host: <strong>{commandDetails.host}</strong></li>}
                   {commandDetails.database && <li>database: <strong>{commandDetails.database}</strong></li>}
@@ -912,7 +893,7 @@ function PendingItem({ data, callback }: any) {
                 </ul>
               </div>
             ) :  (
-              <div>You are about to connect to the MySQL database.</div>
+              <div>You are about to connect to the MySQL coins database.</div>
             )}
             {!commandDetails.action && (
               <div className="mt-2 text-xs">Details about the last synced block will be returned.</div>
@@ -1002,7 +983,7 @@ function PendingItem({ data, callback }: any) {
       if ((commandDetails.host || commandDetails.database || commandDetails.user)) {
         return (
           <div>
-            <div>You are about to connect to the following MySQL database:</div>
+            <div>You are about to connect to the following MySQL coins database:</div>
             <ul className="mt-2 ml-4 list-disc text-[13px]">
               {commandDetails.host && <li>host: <strong>{commandDetails.host}</strong></li>}
               {commandDetails.database && <li>database: <strong>{commandDetails.database}</strong></li>}
@@ -1096,6 +1077,69 @@ function PendingItem({ data, callback }: any) {
                 }
               </ul>
             </div>
+          )}
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'megammrsync' && (commandDetails.phrase || commandDetails.password || commandDetails.anyphrase || commandDetails.keys || commandDetails.keyuses || commandDetails.file)) {
+      return (
+        <div>
+          {showMore && (
+            <ul className="mt-2 ml-4 list-disc text-[13px]">
+              {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
+              {commandDetails.anyphrase === 'true' && <li>A custom seed phrase will be allowed.</li>}
+              {commandDetails.anyphrase === 'false' && <li>A custom seed phrase will not be allowed.</li>}
+              {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
+              {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
+              {commandDetails.file && <li>The following backup file will be restored: <strong>{commandDetails.file}</strong>.</li>}
+              {commandDetails.password && <li>The password provided will be used to decrypt the backup.</li>}
+            </ul> 
+          )}
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'archive' && commandDetails.action === 'addresscheck' && (commandDetails.statecheck || commandDetails.logs || commandDetails.maxexport)) {
+      return (
+        <div>
+          {showMore && (
+            <ul className="mt-2 ml-4 list-disc text-[13px]">
+              {commandDetails.statecheck && <li>The following data will be searched for in the state variables: <strong>{commandDetails.statecheck}</strong></li>}
+              {commandDetails.logs === 'true' && <li>Detailed logs will be provided</li>}
+              {commandDetails.logs === 'false' && <li>Detailed logs will not be provided</li>}
+              {commandDetails.maxexport && <li><strong>{commandDetails.maxexport}</strong> blocks will be exported.</li>}
+            </ul>
+          )}
+        </div>
+      )
+    }
+
+    if (commandDetails?.command === 'archive' && (commandDetails.action === 'import' || commandDetails.action === 'resync') && (commandDetails.anyphrase || commandDetails.phrase || commandDetails.keys || commandDetails.keyuses)) {
+      return (
+        <div>
+          {showMore && (
+            <ul className="mt-2 ml-4 list-disc text-[13px]">
+              {commandDetails.anyphrase === 'true' && <li>A custom seed phrase will be allowed.</li>}
+              {commandDetails.anyphrase === 'false' && <li>A custom seed phrase will not be allowed.</li>}
+              {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
+              {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
+              {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
+            </ul>
+          )}
+        </div>
+      )
+    } 
+
+    if (commandDetails?.command === 'mysql' && commandDetails.action === 'resync' && (commandDetails.phrase || commandDetails.keys)) {
+      return (
+        <div>
+          {showMore && (
+            <ul className="mt-2 ml-4 list-disc">
+              {commandDetails.phrase && <li>The wallet will be regenerated with the seed phrase provided.</li>}
+              {commandDetails.keys && <li><strong>{commandDetails.keys}</strong> keys will be generated. This should be at least 64 to restore a previously used wallet.</li>}
+              {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
+            </ul>
           )}
         </div>
       )
@@ -1221,7 +1265,7 @@ function PendingItem({ data, callback }: any) {
         <>
           <div className="flex-grow flex flex-col h-full p-5 text-center">
             <div className="text-xl mb-4">Approve command?</div>
-            <p className="mb-6">Are you sure you want to accept and run this pending command?</p>
+            <p className="mb-6">Are you sure you want to approve and run this pending command?</p>
             <div className="flex-grow text-left">
               <div>
                 <Panel title="Command" value={safePassword} mono copy={!commandHasPasswordParam} />
