@@ -7,7 +7,7 @@ import { useSpring } from 'react-spring';
 import PendingItem from '../../components/PendingItem';
 
 function Home() {
-  const { hideHelp, pendingData } = useContext(appContext);
+  const { hideHelp, pendingData, setCommandDetails } = useContext(appContext);
   const [currentIndex, setCurrentIndex] = useState<number | null>(0);
   const [view, setView] = useState('GRID');
   const currentPendingItem = pendingData && typeof currentIndex === 'number' && pendingData[currentIndex];
@@ -28,10 +28,12 @@ function Home() {
   }, [view]);
 
   const previous = () => {
+    setCommandDetails(null);
     setCurrentIndex((prevState) => (typeof prevState === 'number' ? prevState - 1 : prevState));
   };
 
   const next = () => {
+    setCommandDetails(null);
     setCurrentIndex((prevState) => (typeof prevState === 'number' ? prevState + 1 : prevState));
   };
 

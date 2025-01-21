@@ -15,14 +15,13 @@ const DENY_RESULTS_VIEW = 'DENY_RESULTS_VIEW';
 Decimal.set({ precision: 44 });
 
 function PendingItem({ data, callback }: any) {
-  const { nodeLocked, accept, decline, refresh, dismissHelp, startInterval, stopInterval, setDisplayVaultIsLocked } =
+  const { nodeLocked, accept, decline, refresh, dismissHelp, startInterval, stopInterval, setDisplayVaultIsLocked, commandDetails, setCommandDetails } =
     useContext(appContext);
   const [view, setView] = useState(DEFAULT_VIEW);
   const [isLoading, setIsLoading] = useState(false);
   const [output, setOutput] = useState<string | null>(null);
   const [response, setResponse] = useState<any>({});
   const [, setLocked] = useState(false);
-  const [commandDetails, setCommandDetails] = useState<Record<string, string> | null>(null);
   const [showMore, setShowMore] = useState(false);
 
   useEffect(() => {
@@ -120,9 +119,9 @@ function PendingItem({ data, callback }: any) {
   };
 
   const safePassword = data.command
-    .replace(/phrase:[^ ]+/gm, 'phrase:***')
-    .replace(/confirm:[^ ]+/gm, 'confirm:***')
-    .replace(/password:[^ ]+/gm, 'password:***');
+    .replace(/\sphrase:[^ ]+/gm, ' phrase:***')
+    .replace(/\sconfirm:[^ ]+/gm, ' confirm:***')
+    .replace(/\spassword:[^ ]+/gm, ' password:***');
 
   // any of these params in the command means we disable the copy button
   const commandHasPasswordParam =
@@ -132,8 +131,6 @@ function PendingItem({ data, callback }: any) {
 
   useEffect(() => {
     (async () => {
-      setCommandDetails(null);
-
       const organisedParams: Record<string, string> = {};
       const command = data.command ? data.command.split(' ')[0] : false;
       data.command && data.command.split(' ').map((element, index) => {
@@ -155,7 +152,7 @@ function PendingItem({ data, callback }: any) {
           }
 
           if (!token) {
-            organisedParams.tokenname = organisedParams.tokenid;
+            organisedParams.tokenname = `tokenid:${organisedParams.tokenid}`;
           }
         } else {
           organisedParams.tokenname = 'Minima';
@@ -526,7 +523,7 @@ function PendingItem({ data, callback }: any) {
 
       return (
         <div>
-          <div>This will return sensitive information including the password required for logging in to your MiniDapp System and list your installed MiniDapps</div>
+          <div>This will return sensitive information including the password required for logging in to your MiniDapp System and list your installed MiniDapps.</div>
         </div>
       )
     }
@@ -557,14 +554,16 @@ function PendingItem({ data, callback }: any) {
     }
 
     if (commandDetails?.command === 'tokencreate') {
+      const decimals = commandDetails.decimals.toString().replace(/"/g, '');
+      const amount = commandDetails.amount.toString().replace(/"/g, '');
       return (
         <div>
           <div>
             <div className="mb-2">You are about to mint a new {commandDetails.decimals === '0' ? 'NFT' : 'token'} with the following attributes:</div>
             <ul className="list-disc list-inside">
               {renderTokenName(commandDetails.name)}
-              <li>Supply: <strong>{commandDetails.amount}</strong></li>
-              {commandDetails.decimals && commandDetails.decimals !== '0' && <li>Decimal places: <strong>{commandDetails.decimals}</strong></li>}
+              <li>Supply: <strong>{amount}</strong></li>
+              {commandDetails.decimals && commandDetails.decimals !== '0' && <li>Decimal places: <strong>{decimals}</strong></li>}
               {commandDetails.script && <li>Script: <strong>{commandDetails.script}</strong></li>}
               {commandDetails.webvalidate && !isNameJsonAndHasValidWebValidateValue(commandDetails.name) && <li>Web validation URL: <strong>{commandDetails.webvalidate}</strong></li>}
             </ul>
@@ -589,11 +588,29 @@ function PendingItem({ data, callback }: any) {
     }
 
     if (commandDetails?.command === 'backup') {
+      if (commandDetails.auto === 'true') {
+        return (
+          <div>
+            <div>
+              <div>You are about to backup this node and enable automatic backups every 24 hours. </div>
+              <div className="mt-2 font-bold">Please note:</div>
+              <ul className="mt-2 ml-4 list-disc">
+                <li>Auto backups are not password protected - any password provided will be ignored.</li>
+                <li>The backup will be saved to the location shown in the response - any file path or name provided will be ignored.</li>
+                <li>Auto backups contain 100 transaction history unless otherwise configured at startup.</li>
+              </ul>
+              <div className="mt-2">For easier backup management, it is recommended to use the Security MiniDapp.</div>
+            </div>
+          </div>
+        )
+      }
       return (
         <div>
           <div>
-            <div>You are about to take a backup of this node.</div>
-            <ul className="mt-2 ml-4 list-disc text-[13px]">
+            <div>You are about to take a backup of this node. The file location will be shown in the response.</div>
+            <div className="mt-2">For easier backup management, it is recommended to use the security MiniDapp.</div>
+            <ul className="mt-2 ml-4 list-disc">
+              <li>You are about to disable automatic backups for this node.</li>
               {commandDetails.password && <li>It will be encrypted with the password provided.</li>}
               {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong>.</li>}
               {!commandDetails.file && <li>It will be saved in your node's base folder. </li>}
@@ -676,6 +693,24 @@ function PendingItem({ data, callback }: any) {
     }
 
     if (commandDetails?.command === 'megammrsync') {
+      if (commandDetails.action === 'resync' && commandDetails.phrase && !commandDetails.file) {
+        return (
+          <div>
+            <div>You are about to restore and resync your node to a new seed phrase using the host <strong>{commandDetails.host}</strong>. Your transaction history will be wiped and wallet will be restored.</div>
+            <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
+          </div>
+        );
+      }
+
+      if (commandDetails.action === 'resync' && commandDetails.file && !commandDetails.phrase) {
+        return (
+          <div>
+            <div>You are about to restore a backup and resync your node using the host <strong>{commandDetails.host}</strong>. Your transaction history will be wiped and wallet will be restored.</div>
+            <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
+          </div>
+        );
+      }
+
       if (commandDetails.action === 'resync') {
         return (
           <div>
@@ -743,7 +778,8 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'import') {
         return (
           <div>
-            <div>You are about to import and resync from the following archive file: <strong>{commandDetails.file}</strong>. Please ensure your node is set up as an archive node before proceeding. This will take a while. If possible, it is recommended to run this directly from the Minima Terminal.</div>
+            {commandDetails.phrase && <div>You are about to wipe and restore this node to a new seed phrase and import all archive data from the following archive file: <strong>{commandDetails.file}</strong>.</div>}
+            {!commandDetails.phrase && <div>You are about to import and resync from the following archive file: <strong>{commandDetails.file}</strong>. Please ensure your node is set up as an archive node before proceeding. This will take a while. If possible, it is recommended to run this directly from the Minima Terminal.</div>}
             <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
           </div>
         );
@@ -799,7 +835,7 @@ function PendingItem({ data, callback }: any) {
 
       if (commandDetails.action === 'autobackup') {
         return (
-          <div>The node’s archive data will be automatically backed up to the MySQL database. If your node is using the <strong>-mysqlalltxpow</strong> startup parameter, all transaction will also be backed up to MySQL.</div>
+          <div>The node’s archive data will be automatically backed up to the MySQL database. If your node is using the <strong>-mysqlalltxpow</strong> startup parameter, all transactions will also be backed up to MySQL.</div>
         )
       }
 
@@ -836,7 +872,7 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'resync') {
         return (
           <div>
-            <div>Your node will be {commandDetails.phrase ? 'wipe and restore' : 're-sync'} from the MySQL database. Your transaction history will be wiped and wallet will be restored.</div>
+            <div>Your node will be {commandDetails.phrase ? 'wiped and restore' : 're-sync'} from the MySQL database. Your transaction history will be wiped and wallet will be restored.</div>
             <div className="mt-2">It is recommended to first backup your node and ensure you have written down your seed phrase.</div>
             <div className="mt-2">This will take a long time so it is recommended to perform this directly from the Minima Terminal.</div>
             <div className="mt-2">The node will shutdown once complete, so you must restart it.</div>

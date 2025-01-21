@@ -40,6 +40,8 @@ type AppContext = {
   displayVaultIsLocked: boolean;
   setDisplayVaultIsLocked: (state: boolean) => void;
   nodeLocked: boolean;
+  commandDetails: Record<string, string> | null;
+  setCommandDetails: (state: Record<string, string> | null) => void;
 };
 
 export const appContext = createContext<AppContext>({
@@ -58,6 +60,8 @@ export const appContext = createContext<AppContext>({
   displayVaultIsLocked: false,
   setDisplayVaultIsLocked: () => null,
   nodeLocked: false,
+  commandDetails: null,
+  setCommandDetails: () => null,
 });
 
 const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
@@ -69,6 +73,7 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
   const [displayVaultIsLocked, setDisplayVaultIsLocked] = useState<boolean>(false);
   const [displayActionModal, setDisplayActionModal] = useState<AppContext['displayActionModal']>(null);
   const [appIsInWriteMode, setAppIsInWriteMode] = useState<boolean | null>(null);
+  const [commandDetails, setCommandDetails] = useState<Record<string, string> | null>(null);
 
   // init mds
   useEffect(() => {
@@ -196,6 +201,8 @@ const AppProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
     displayVaultIsLocked,
     setDisplayVaultIsLocked,
     nodeLocked,
+    commandDetails,
+    setCommandDetails,
   };
 
   return <appContext.Provider value={value}>{children}</appContext.Provider>;
