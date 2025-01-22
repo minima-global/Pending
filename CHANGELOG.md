@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.2.3] - 22 January 25
+
+- Minor text changes
+
 ##### [1.2.2] - 21 January 25
 
 - Applied changes to the pending MDS action descriptions based on feedback 

@@ -604,20 +604,12 @@ function PendingItem({ data, callback }: any) {
           </div>
         )
       }
+    
       return (
         <div>
           <div>
-            <div>You are about to take a backup of this node. The file location will be shown in the response.</div>
+            <div>You are about to disable automatic backups for this node.</div>
             <div className="mt-2">For easier backup management, it is recommended to use the security MiniDapp.</div>
-            <ul className="mt-2 ml-4 list-disc">
-              <li>You are about to disable automatic backups for this node.</li>
-              {commandDetails.password && <li>It will be encrypted with the password provided.</li>}
-              {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong>.</li>}
-              {!commandDetails.file && <li>It will be saved in your node's base folder. </li>}
-              {commandDetails.auto === 'true' && <li>A non password protected backup of this node will be taken every 24 hours whilst the node is running. It will be saved to the base folder of this node. Any password or custom file name provided will be ignored.</li>}
-              {commandDetails.auto === 'false' && <li>Automatic backups will be disabled.</li>}
-              {commandDetails.maxhistory && <li>This backup will contain a maximum history of <strong>{commandDetails.maxhistory}</strong> of your transactions.</li>}
-            </ul>
           </div>
         </div>
       )
