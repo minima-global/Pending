@@ -1,6 +1,6 @@
 # Changelog
 
-##### [1.2.3] - 22 January 25
+##### [1.2.4] - 22 January 25
 
 - Minor text changes
 

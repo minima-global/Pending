@@ -604,13 +604,25 @@ function PendingItem({ data, callback }: any) {
           </div>
         )
       }
-    
-      return (
-        <div>
+
+      if (commandDetails.auto === 'false') {
+        return (
           <div>
             <div>You are about to disable automatic backups for this node.</div>
             <div className="mt-2">For easier backup management, it is recommended to use the security MiniDapp.</div>
           </div>
+        )
+      }
+
+      return (
+        <div>
+          <div>You are about to take a backup of this node. The file location will be shown in the response.</div>
+          <div className="mt-2">For easier backup management, it is recommended to use the security MiniDapp.</div>
+          {(commandDetails.password || commandDetails.file || commandDetails.maxhistory) && <ul className="mt-2 ml-4 list-disc">
+            {commandDetails.password && <li>It will be encrypted with the password provided.</li>}
+            {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong>.</li>}
+            {commandDetails.maxhistory && <li>This backup will contain a maximum history of <strong>{commandDetails.maxhistory}</strong> of your transactions.</li>}
+          </ul>}
         </div>
       )
     }
@@ -803,7 +815,7 @@ function PendingItem({ data, callback }: any) {
                   {commandDetails.user && <li>user: <strong>{commandDetails.user}</strong></li>}
                 </ul>
               </div>
-            ) :  (
+            ) : (
               <div>You are about to connect to the MySQL database.</div>
             )}
             {!commandDetails.action && (
@@ -906,8 +918,8 @@ function PendingItem({ data, callback }: any) {
           <div>
             <div>The MySQL archive database will be exported to a raw .dat file. This can be used to resync a node.</div>
             <ul className="mt-2 ml-4 list-disc text-[13px]">
-                {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong></li>}
-                {!commandDetails.file && <li>This will be saved in your node's base folder.</li>}
+              {commandDetails.file && <li>It will be saved in the following file/location: <strong>{commandDetails.file}</strong></li>}
+              {!commandDetails.file && <li>This will be saved in your node's base folder.</li>}
             </ul>
           </div>
         )
@@ -916,7 +928,7 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'rawimport') {
         return (
           <div>
-            <div>The following file will be imported to the MySQL archive database: <strong>{commandDetails.file}</strong>.</div> 
+            <div>The following file will be imported to the MySQL archive database: <strong>{commandDetails.file}</strong>.</div>
             <div className="mt-2">This must be a valid <strong>.dat</strong> file.</div>
           </div>
         )
@@ -953,7 +965,7 @@ function PendingItem({ data, callback }: any) {
                   {commandDetails.user && <li>user: <strong>{commandDetails.user}</strong></li>}
                 </ul>
               </div>
-            ) :  (
+            ) : (
               <div>You are about to connect to the MySQL coins database.</div>
             )}
             {!commandDetails.action && (
@@ -994,8 +1006,8 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'search' && commandDetails.address) {
         return (
           <div>
-             <div>A search will be performed on the coins at the following address: <strong>{commandDetails.address}</strong>.</div>
-             {(commandDetails.spent) && (
+            <div>A search will be performed on the coins at the following address: <strong>{commandDetails.address}</strong>.</div>
+            {(commandDetails.spent) && (
               <ul className="mt-2 ml-4 list-disc text-[13px]">
                 {commandDetails.spent === 'true' && <li>Only spent coins will be returned.</li>}
                 {commandDetails.spent === 'false' && <li>Only unspent coins will be returned.</li>}
@@ -1008,13 +1020,13 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'search' && commandDetails.where) {
         return (
           <div>
-             <div>A search will be performed on the coins with the following SQL WHERE statement:</div>
-             <div className="mt-2">
-                <pre className="mt-2 border border-gray-800 text-[13px] rounded p-2 break-all">
-                  {commandDetails.where}
-                </pre>
+            <div>A search will be performed on the coins with the following SQL WHERE statement:</div>
+            <div className="mt-2">
+              <pre className="mt-2 border border-gray-800 text-[13px] rounded p-2 break-all">
+                {commandDetails.where}
+              </pre>
             </div>
-             {(commandDetails.limit) && (
+            {(commandDetails.limit) && (
               <ul className="mt-2 ml-4 list-disc text-[13px]">
                 {commandDetails.limit && <li>The number of rows returned will be limited to <strong>{commandDetails.limit}</strong>.</li>}
               </ul>
@@ -1026,13 +1038,13 @@ function PendingItem({ data, callback }: any) {
       if (commandDetails.action === 'search' && commandDetails.query) {
         return (
           <div>
-             <div>A search will be performed on the coins with the following SQL query:</div>
-             <div className="mt-2">
-                <pre className="mt-2 border border-gray-800 text-[13px] rounded p-2 break-all">
-                  {commandDetails.query}
-                </pre>
+            <div>A search will be performed on the coins with the following SQL query:</div>
+            <div className="mt-2">
+              <pre className="mt-2 border border-gray-800 text-[13px] rounded p-2 break-all">
+                {commandDetails.query}
+              </pre>
             </div>
-             {(commandDetails.limit) && (
+            {(commandDetails.limit) && (
               <ul className="mt-2 ml-4 list-disc text-[13px]">
                 {commandDetails.limit && <li>The number of rows returned will be limited to: <strong>{commandDetails.limit}</strong>.</li>}
               </ul>
@@ -1155,7 +1167,7 @@ function PendingItem({ data, callback }: any) {
               {commandDetails.keyuses && <li>Your key uses value will be set to <strong>{commandDetails.keyuses}</strong>. This value must be higher than the maximum number of times you have transacted since starting your node. 262144 is the maximum possible value.</li>}
               {commandDetails.file && <li>The following backup file will be restored: <strong>{commandDetails.file}</strong>.</li>}
               {commandDetails.password && <li>The password provided will be used to decrypt the backup.</li>}
-            </ul> 
+            </ul>
           )}
         </div>
       )
@@ -1190,7 +1202,7 @@ function PendingItem({ data, callback }: any) {
           )}
         </div>
       )
-    } 
+    }
 
     if (commandDetails?.command === 'mysql' && commandDetails.action === 'resync' && (commandDetails.phrase || commandDetails.keys)) {
       return (
