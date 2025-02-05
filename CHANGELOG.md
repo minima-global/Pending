@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.2.5] - 05 February 25
+
+- Added break-all to the state variables when displaying the send command details
+
 ##### [1.2.4] - 22 January 25
 
 - Minor text changes

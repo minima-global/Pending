@@ -1119,7 +1119,7 @@ function PendingItem({ data, callback }: any) {
                 {commandDetails.password && <li>A password has been provided.</li>}
                 {commandDetails.state &&
                   <li>This transaction includes custom state variables:
-                    <ul className="ml-4 list-disc list-inside">
+                    <ul className="ml-8 list-disc break-all">
                       {(Object.entries(JSON.parse(commandDetails.state)) as string[][]).map((item) => <li>{item[0]}: {item[1]}</li>)}
                     </ul>
                   </li>
