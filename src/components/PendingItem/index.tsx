@@ -51,13 +51,19 @@ function PendingItem({ data, callback }: any) {
   };
 
   const approveAction = async () => {
+    console.log(
+      nodeLocked,
+      data.command.includes('password:'),
+      /send|sendpoll|multisig|tokencreate|consolidate/gi.test(data.command)
+    );
+
     if (
       // node is locked
       nodeLocked &&
       // command does not include password
       !data.command.includes('password:') &&
       // command is one of the following &&
-      /send|sendpoll|multisig|tokencreate|consolidate/gi.test(data.command)
+      /send|sign|sendpoll|multisig|tokencreate|consolidate/gi.test(data.command)
     ) {
       return setDisplayVaultIsLocked(true);
     }
@@ -398,7 +404,7 @@ function PendingItem({ data, callback }: any) {
       return (
         <div>
           <div>
-            <div>You are about to sign data with the following public key: <strong>{commandDetails.publickey}</strong>.</div>
+            <div className="break-all">You are about to sign data with the following public key: <strong>{commandDetails.publickey}</strong>.</div>
           </div>
         </div>
       )

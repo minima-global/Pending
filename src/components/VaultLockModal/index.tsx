@@ -82,8 +82,8 @@ export function VaultLockModal({ callback }) {
             onClick={toggleShowPassword}
             className="cursor-pointer absolute top-0 right-0 flex items-center justify-center w-12 h-12"
           >
-            {showPassword && <img src="/assets/eye.svg" width="16" height="16" alt="Password shown" />}
-            {!showPassword && <img src="/assets/eye-off.svg" width="16" height="16" alt="Password hidden" />}
+            {showPassword && <img src="./assets/eye.svg" width="16" height="16" alt="Password shown" />}
+            {!showPassword && <img src="./assets/eye-off.svg" width="16" height="16" alt="Password hidden" />}
           </div>
         </div>
         <div className="mt-6 flex flex-col gap-4">

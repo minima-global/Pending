@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.2.7] - 06 February 25
+
+- Sign will now trigger the vault unlock modal if the node is locked
+
 ##### [1.2.5] - 05 February 25
 
 - Added break-all to the state variables when displaying the send command details
