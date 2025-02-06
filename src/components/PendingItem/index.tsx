@@ -51,12 +51,6 @@ function PendingItem({ data, callback }: any) {
   };
 
   const approveAction = async () => {
-    console.log(
-      nodeLocked,
-      data.command.includes('password:'),
-      /send|sendpoll|multisig|tokencreate|consolidate/gi.test(data.command)
-    );
-
     if (
       // node is locked
       nodeLocked &&
