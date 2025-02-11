@@ -1,5 +1,10 @@
 # Changelog
 
+##### [1.2.8] - 11 February 25
+
+- Fixed an issue where the token name was breaking out of the container
+- Fixed an issue where custom tokens or nfts with names with spaces were not being displayed correctly
+
 ##### [1.2.7] - 06 February 25
 
 - Sign will now trigger the vault unlock modal if the node is locked

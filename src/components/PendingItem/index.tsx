@@ -133,6 +133,7 @@ function PendingItem({ data, callback }: any) {
     (async () => {
       const organisedParams: Record<string, string> = {};
       const command = data.command ? data.command.split(' ')[0] : false;
+
       data.command && data.command.split(' ').map((element, index) => {
         if (index > 0) {
           organisedParams[element.split(':')[0]] = element.split(':').slice(1).join(':');
@@ -167,6 +168,17 @@ function PendingItem({ data, callback }: any) {
         }
       }
 
+      if (data.command && data.command.includes('name:')) {
+        const nameValue = data.command.substring(data.command.indexOf('{'), data.command.lastIndexOf('}') + 1);
+
+        try {
+          const JSONNameValue = JSON.parse(nameValue);
+          organisedParams.name = JSONNameValue.name;
+        } catch (e) {
+          // do nothing if errors
+        }
+      }
+
       setCommandDetails({
         command,
         ...organisedParams,
@@ -194,7 +206,7 @@ function PendingItem({ data, callback }: any) {
               return null;
             }
 
-            return <li key={key}><span className="capitalize">{key}</span>: <strong>{value}</strong></li>;
+            return <li key={key}><span className="capitalize">{key}</span>: <strong>{value.length > 128 ? `${value.slice(0,125)}...` : value}</strong></li>;
           })}
         </>
       )
@@ -560,7 +572,7 @@ function PendingItem({ data, callback }: any) {
         <div>
           <div>
             <div className="mb-2">You are about to mint a new {commandDetails.decimals === '0' ? 'NFT' : 'token'} with the following attributes:</div>
-            <ul className="list-disc list-inside">
+            <ul className="list-disc list-inside break-all">
               {renderTokenName(commandDetails.name)}
               <li>Supply: <strong>{amount}</strong></li>
               {commandDetails.decimals && commandDetails.decimals !== '0' && <li>Decimal places: <strong>{decimals}</strong></li>}
