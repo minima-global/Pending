@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.2.9] - 21 February 25
+
+- Fixed an issue where the spaces in the multi command array was breaking the minidapp
+
 ##### [1.2.8] - 11 February 25
 
 - Fixed an issue where the token name was breaking out of the container

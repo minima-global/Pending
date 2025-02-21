@@ -179,6 +179,18 @@ function PendingItem({ data, callback }: any) {
         }
       }
 
+      if (data.command && data.command.includes('multi:')) {
+        const multi = data.command.substring(data.command.indexOf('['), data.command.lastIndexOf(']') + 1);
+
+        try {
+          organisedParams.multi = multi;
+        } catch (e) {
+          // do nothing if errors
+        }
+      }
+
+      console.log(data.command)
+
       setCommandDetails({
         command,
         ...organisedParams,
@@ -224,6 +236,8 @@ function PendingItem({ data, callback }: any) {
       return false;
     }
   }
+
+  console.log(commandDetails);
 
   const renderMessage = () => {
     if (commandDetails?.command === 'send') {
