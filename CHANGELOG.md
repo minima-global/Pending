@@ -1,5 +1,9 @@
 # Changelog
 
+##### [1.2.10] - 24 February 25
+
+- Fixed an issue where the send command was breaking the MiniDapp if the multi command help text could not be rendered
+
 ##### [1.2.9] - 21 February 25
 
 - Fixed an issue where the spaces in the multi command array was breaking the minidapp

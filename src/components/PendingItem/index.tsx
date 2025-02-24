@@ -180,16 +180,14 @@ function PendingItem({ data, callback }: any) {
       }
 
       if (data.command && data.command.includes('multi:')) {
-        const multi = data.command.substring(data.command.indexOf('['), data.command.lastIndexOf(']') + 1);
+        const multi = data.command.substring(data.command.indexOf('['), data.command.indexOf(']') + 1);
 
         try {
           organisedParams.multi = multi;
         } catch (e) {
-          // do nothing if errors
+          organisedParams.multi = '';
         }
       }
-
-      console.log(data.command)
 
       setCommandDetails({
         command,
@@ -218,7 +216,7 @@ function PendingItem({ data, callback }: any) {
               return null;
             }
 
-            return <li key={key}><span className="capitalize">{key}</span>: <strong>{value.length > 128 ? `${value.slice(0,125)}...` : value}</strong></li>;
+            return <li key={key}><span className="capitalize">{key}</span>: <strong>{value.length > 128 ? `${value.slice(0, 125)}...` : value}</strong></li>;
           })}
         </>
       )
@@ -237,7 +235,22 @@ function PendingItem({ data, callback }: any) {
     }
   }
 
-  console.log(commandDetails);
+  const renderMulti = (multi: string) => {
+    try {
+      if (!commandDetails) {
+        return null;
+      }
+
+      const multiArray = JSON.parse(multi);
+      return multiArray.map((multi: string) => {
+        const address = multi.split(':')[0];
+        const amount = multi.split(':')[1];
+        return <li key={multi}><strong>{amount}</strong> {commandDetails.tokenname} to <strong>{address}</strong></li>;
+      });
+    } catch (e) {
+      return <li>"There is an unknown error with the displaying the multi command</li>;
+    }
+  }
 
   const renderMessage = () => {
     if (commandDetails?.command === 'send') {
@@ -247,13 +260,7 @@ function PendingItem({ data, callback }: any) {
           {commandDetails.multi && <div className="break-words">
             You are about to send <strong>{commandDetails.tokenname}</strong> to multiple addresses:
             <ul className="mt-2 list-disc ml-4 text-gray-400 break-all">
-              {JSON.parse(commandDetails.multi).map((multi: string, index: number) => {
-                const address = multi.split(':')[0];
-                const amount = multi.split(':')[1];
-                return (
-                  <li key={multi + index}><strong>{amount}</strong> {commandDetails.tokenname} to <strong>{address}</strong></li>
-                )
-              })}
+              {renderMulti(commandDetails.multi)}
             </ul>
           </div>}
           {commandDetails.burn && <div className="mt-2">This transaction will burn <strong>{commandDetails.burn}</strong> Minima.</div>}
@@ -269,13 +276,7 @@ function PendingItem({ data, callback }: any) {
           {commandDetails.multi && <div className="break-words">
             You are about to send <strong>{commandDetails.tokenname}</strong> to multiple addresses:
             <ul className="mt-2 list-disc ml-4 text-gray-400 break-all">
-              {JSON.parse(commandDetails.multi).map((multi: string, index: number) => {
-                const address = multi.split(':')[0];
-                const amount = multi.split(':')[1];
-                return (
-                  <li key={multi + index}><strong>{amount}</strong> to <strong>{address}</strong></li>
-                )
-              })}
+              {renderMulti(commandDetails.multi)}
             </ul>
           </div>}
           {commandDetails.burn && <div className="mt-2">This transaction will burn <strong>{commandDetails.burn}</strong> Minima.</div>}
